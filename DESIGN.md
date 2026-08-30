@@ -99,24 +99,27 @@ permissions:
 
 jobs:
   evaluate:
-    runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
+      - name: 安装 Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: 安装依赖
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: 采集数据 + 六维评分 + 红牌检测
         run: |
           mkdir -p results/${{ github.actor }}
-          npx tsx scripts/cli.ts evaluate "${{ github.actor }}" > results/${{ github.actor }}/report.json
+          bun scripts/cli.ts evaluate "${{ github.actor }}" > results/${{ github.actor }}/report.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 生成雷达图 SVG
+      - name: 生成雷达图 Mermaid
         run: |
-          npx tsx scripts/generateRadar.ts < results/${{ github.actor }}/report.json > results/${{ github.actor }}/radar.svg
+          bun scripts/generateRadar.ts < results/${{ github.actor }}/report.json > results/${{ github.actor }}/radar.mmd
       - name: 提交结果到仓库
         run: |
           git config user.name "HexaScope Bot"
@@ -178,7 +181,6 @@ Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
 
 - **方案 B（已采纳）**：前端直接通过 JavaScript 调用 GitHub Raw 文件链接获取数据
   - 数据 URL：`https://raw.githubusercontent.com/zhaozg/HexaScope/main/results/{username}/report.json`
-  - 雷达图 SVG：`https://raw.githubusercontent.com/zhaozg/HexaScope/main/results/{username}/radar.svg`
   - 徽章 SVG：`https://raw.githubusercontent.com/zhaozg/HexaScope/main/results/{username}/badge.svg`
 
 - **优点**：无需构建时注入数据，始终保持最新；实现简单，维护成本低
@@ -207,7 +209,8 @@ Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
 
 ### 4.2 评分逻辑细则
 
-各维度 0-100 分，通过确定性算法计算。以下为各维度核心公式的**伪代码**（实际实现采用 TypeScript / Node.js ≥ 18，逻辑保持一致）：
+各维度 0-100 分，通过确定性算法计算。以下为各维度核心公式的**伪代码**（实际实现采用 TypeScript / Bun ≥ 1.1，逻辑保持一致）：
+各维度 0-100 分，通过确定性算法计算。以下为各维度核心公式的**伪代码**（实际实现采用 TypeScript / Bun ≥ 1.1，逻辑保持一致）：
 
 **1. 技术硬实力（满分100）**
 
@@ -391,9 +394,8 @@ return min(max(score, 0), 100)
 |------|---------|------|
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
-| **评分核心** | Node.js (TypeScript) | 确定性六维评分算法 |
-| **雷达图生成** | Node.js (SVG 模板) | 生成 SVG/PNG 雷达图 |
-| **前端仪表板** | React + ECharts | GitHub Pages 托管 |
+| **评分核心** | Bun (TypeScript) | 确定性六维评分算法 |
+| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（前端渲染） |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
 | **许可证** | MIT License | 开源协议 |
@@ -486,17 +488,17 @@ zhaozg/HexaScope/
 ├── results/                     # 评估结果（自动提交）
 │   └── {username}/
 │       ├── report.json          # 完整评估报告（含各维度得分拆解）
-│       ├── radar.svg            # 雷达图 SVG
-│       ├── radar.png            # 雷达图 PNG（备用）
+│       ├── radar.mmd            # 雷达图 Mermaid 代码
 │       └── badge.svg            # README 徽章
 ├── docs/
 │   ├── API.md                   # Copilot Extension API
 │   ├── USER_GUIDE.md            # 用户使用指南
 │   └── SELF_HOSTING.md          # 自托管部署指南
 ├── tests/                       # 单元测试
-├── tests/                       # 单元测试
-│   ├── testScoring.ts
-│   └── testRedflag.ts
+│   ├── scoring.test.ts
+│   ├── redflag.test.ts
+│   ├── radar.test.ts
+│   └── fetch.test.ts
 ├── DESIGN.md                    # 本设计文档
 ├── LICENSE                      # MIT
 └── README.md

@@ -119,9 +119,8 @@ HexaScope 的能力评估基于经典的**程序员六维模型**，六个顶点
 |------|---------|------|
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
-| **评分核心** | Node.js (TypeScript) | 确定性六维评分算法 |
-| **雷达图生成** | Node.js (SVG 模板) | 生成 SVG/PNG 雷达图 |
-| **前端仪表板** | React + ECharts | GitHub Pages 托管 |
+| **评分核心** | Bun (TypeScript) | 确定性六维评分算法 |
+| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（前端 mermaid.js 渲染） |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
 
@@ -147,7 +146,7 @@ zhaozg/HexaScope/
 ├── results/                     # 评估结果（自动提交）
 │   └── {username}/
 │       ├── report.json
-│       ├── radar.svg
+│       ├── radar.mmd
 │       └── badge.svg
 ├── docs/
 │   ├── API.md                   # Copilot Extension API

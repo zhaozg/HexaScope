@@ -3,7 +3,7 @@
  * @see DESIGN.md 4.3
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 import {
   AI_CODE_THRESHOLD,
   CONTRIBUTION_VARIANCE_THRESHOLD,
@@ -16,8 +16,8 @@ import {
   STAR_FOLLOW_THRESHOLD,
   countTriggeredRedFlags,
   detectRedFlags,
-} from '../scripts/redflagDetector.js';
-import type { EvaluationInput, RepoInfo } from '../scripts/types.js';
+} from '../scripts/redflagDetector.ts';
+import type { EvaluationInput, RepoInfo } from '../scripts/types.ts';
 
 function makeRepo(overrides: Partial<RepoInfo> = {}): RepoInfo {
   return {

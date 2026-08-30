@@ -5,7 +5,7 @@
  * 六个维度：技术硬实力、架构与设计、问题排查、工程化效能、沟通协作、业务洞察。
  */
 
-import type { DimensionScore, EvaluationInput, RepoInfo } from './types.js';
+import type { DimensionScore, EvaluationInput, RepoInfo } from './types.ts';
 
 /** 语言权重表（技术硬实力）。 */
 export const LANGUAGE_SCORES: Record<string, number> = {

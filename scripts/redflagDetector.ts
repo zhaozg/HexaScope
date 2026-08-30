@@ -7,7 +7,7 @@
  * @see DESIGN.md 4.3
  */
 
-import type { EvaluationInput, RedFlag, UserActivity } from './types.js';
+import type { EvaluationInput, RedFlag, UserActivity } from './types.ts';
 
 /** 红牌 #1：PR 自合并比例阈值。 */
 export const SELF_MERGE_THRESHOLD = 0.6;

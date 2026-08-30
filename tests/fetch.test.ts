@@ -1,33 +1,25 @@
 /**
  * 数据采集与报告构建测试。
  *
- * 使用 MSW（Mock Service Worker）模拟 GitHub API 请求，
+ * 使用 Bun.serve 启动本地 mock 服务器模拟 GitHub API，
  * 严禁在单元测试中真正发起网络调用。
  */
 
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import { buildReport, fetchEvaluationInput } from '../scripts/cli.js';
+import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { buildReport, fetchEvaluationInput } from '../scripts/cli.ts';
 
-const server = setupServer();
+let server: { port: number | undefined; stop(): void };
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-describe('fetchEvaluationInput（MSW 模拟 GitHub API）', () => {
-  it('采集用户与仓库数据并构造评估输入', async () => {
-    server.use(
-      http.get('https://api.github.com/users/alice', () =>
-        HttpResponse.json({
-          login: 'alice',
-          public_repos: 3,
-          followers: 10,
-        }),
-      ),
-      http.get('https://api.github.com/users/alice/repos', () =>
-        HttpResponse.json([
+beforeAll(() => {
+  server = Bun.serve({
+    port: 0,
+    fetch(req) {
+      const url = new URL(req.url);
+      if (url.pathname === '/users/alice') {
+        return Response.json({ login: 'alice', public_repos: 3, followers: 10 });
+      }
+      if (url.pathname === '/users/alice/repos') {
+        return Response.json([
           {
             name: 'awesome',
             stargazers_count: 500,
@@ -42,11 +34,30 @@ describe('fetchEvaluationInput（MSW 模拟 GitHub API）', () => {
             size: 0,
             language: null,
           },
-        ]),
-      ),
-    );
+        ]);
+      }
+      if (url.pathname === '/users/bob') {
+        return Response.json({ login: 'bob', public_repos: 0, followers: 0 });
+      }
+      if (url.pathname === '/users/bob/repos') {
+        return Response.json([]);
+      }
+      return new Response('Not Found', { status: 404 });
+    },
+  });
+});
 
-    const input = await fetchEvaluationInput('alice', 'ghp_test_token');
+afterAll(() => {
+  server.stop();
+});
+
+describe('fetchEvaluationInput（Bun.serve 本地 mock GitHub API）', () => {
+  it('采集用户与仓库数据并构造评估输入', async () => {
+    const input = await fetchEvaluationInput(
+      'alice',
+      'ghp_test_token',
+      `http://localhost:${server.port}`,
+    );
     expect(input.username).toBe('alice');
     expect(input.repos).toHaveLength(2);
     expect(input.repos[0]?.name).toBe('awesome');
@@ -56,14 +67,7 @@ describe('fetchEvaluationInput（MSW 模拟 GitHub API）', () => {
   });
 
   it('无仓库时各比例指标为 0', async () => {
-    server.use(
-      http.get('https://api.github.com/users/bob', () =>
-        HttpResponse.json({ login: 'bob', public_repos: 0, followers: 0 }),
-      ),
-      http.get('https://api.github.com/users/bob/repos', () => HttpResponse.json([])),
-    );
-
-    const input = await fetchEvaluationInput('bob');
+    const input = await fetchEvaluationInput('bob', undefined, `http://localhost:${server.port}`);
     expect(input.repos).toHaveLength(0);
     expect(input.activity.forkRatio).toBe(0);
     expect(input.activity.emptyRepoRatio).toBe(0);

@@ -9,9 +9,9 @@
  */
 
 import { Octokit } from '@octokit/rest';
-import { calculateDimensions, calculateOverallScore } from './scoreCalculator.js';
-import { detectRedFlags } from './redflagDetector.js';
-import type { EvaluationInput, EvaluationReport } from './types.js';
+import { calculateDimensions, calculateOverallScore } from './scoreCalculator.ts';
+import { detectRedFlags } from './redflagDetector.ts';
+import type { EvaluationInput, EvaluationReport } from './types.ts';
 
 /** 自我评估免责声明（隐私边界要求）。 */
 export const DISCLAIMER =
@@ -40,11 +40,21 @@ export function buildReport(
  * @param username GitHub 用户名
  * @param token GitHub Token（可选，公开数据可不传）
  */
+/**
+ * 从 GitHub API 采集用户数据并构造评估输入。
+ * @param username GitHub 用户名
+ * @param token GitHub Token（可选，公开数据可不传）
+ * @param baseUrl GitHub API 基础地址（测试时可指向本地 mock 服务器）
+ */
 export async function fetchEvaluationInput(
   username: string,
   token?: string,
+  baseUrl = 'https://api.github.com',
 ): Promise<EvaluationInput> {
-  const octokit = new Octokit(token ? { auth: token } : {});
+  const octokit = new Octokit({
+    baseUrl,
+    ...(token ? { auth: token } : {}),
+  });
 
   const { data: user } = await octokit.rest.users.getByUsername({ username });
 

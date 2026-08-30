@@ -1,0 +1,14 @@
+# Bun 配置文件
+# 见 https://bun.sh/docs/runtime/bunfig
+
+[install]
+# 使用官方 npm registry，保证可复现性（可在本地覆盖）
+registry = "https://registry.npmjs.org/"
+# 使用文本格式 lockfile（bun.lock），便于 code review 与 diff
+saveTextLockfile = true
+
+[test]
+# 默认开启覆盖率（可用 --coverage 覆盖）
+coverage = true
+# 覆盖率阈值（0.85 = 行覆盖 ≥ 85%，AGENTS.md 要求；bun 使用 0-1 小数）
+coverageThreshold = 0.85

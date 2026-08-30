@@ -3,7 +3,7 @@
  * @see DESIGN.md 4.2
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 import {
   DIMENSION_WEIGHTS,
   calculateArchitectureScore,
@@ -14,8 +14,8 @@ import {
   calculateEngineeringScore,
   calculateOverallScore,
   calculateTechnicalScore,
-} from '../scripts/scoreCalculator.js';
-import type { EvaluationInput, RepoInfo } from '../scripts/types.js';
+} from '../scripts/scoreCalculator.ts';
+import type { EvaluationInput, RepoInfo } from '../scripts/types.ts';
 
 /** 构造一个标准仓库。 */
 function makeRepo(overrides: Partial<RepoInfo> = {}): RepoInfo {

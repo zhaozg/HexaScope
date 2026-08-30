@@ -32,14 +32,15 @@
 
 | 领域 | 技术栈 | 版本要求 |
 |------|--------|----------|
-| **后端/脚本（评分引擎）** | Node.js (TypeScript) | Node.js ≥ 18, npm ≥ 9 |
-| **前端仪表板** | React + ECharts | Node.js ≥ 18, npm ≥ 9 |
-| **自动化** | GitHub Actions (YAML) | 使用 `ubuntu-latest` 运行器 |
+| 领域 | 技术栈 | 版本要求 |
+|------|--------|----------|
+| **后端/脚本（评分引擎）** | Bun (TypeScript) | Bun ≥ 1.1 |
+| **前端仪表板** | React + ECharts / Mermaid | Bun ≥ 1.1 |
 | **数据格式** | JSON, SVG, YAML | — |
 
 ### 3.2 依赖管理
 
-- **Node.js**: 所有依赖（脚本 + 前端）统一在根目录 `package.json` 中定义，`package-lock.json` 同步提交。
+- **Bun**: 所有依赖（脚本 + 前端）统一在根目录 `package.json` 中定义，`bun.lock` 同步提交（`bun install` 生成）。
 - **禁止**: 严禁在代码中动态下载或执行外部二进制文件。
 
 ### 3.3 环境变量
@@ -56,9 +57,7 @@ const GITHUB_TOKEN = "ghp_xxxxxxxxxxxx";
 
 ---
 
-## 4. 编码规范
-
-### 4.1 TypeScript / Node.js（`scripts/`, `tests/`）
+### 4.1 TypeScript / Bun（`scripts/`, `tests/`）
 
 - **风格**: 遵循 [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)，统一使用 TypeScript。
 - **格式化**: 使用 `prettier`（默认配置），行宽 ≤ 100 字符。
@@ -83,9 +82,9 @@ export function calculateLanguageScore(
 
 ### 4.2 JavaScript / React（`frontend/`）
 
+- **Lint**: 所有 PR 必须通过 `bun run lint` 检查（零警告）。
 - **风格**: 遵循 [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)。
 - **组件**: 使用**函数式组件**和 Hooks，禁用 Class Components。
-- **Lint**: 所有 PR 必须通过 `npm run lint` 检查（零警告）。
 
 ```jsx
 // ✅ 正确示例
@@ -150,15 +149,16 @@ feat(scoring): add Zig language support with weight 1.2
 ## 7. 测试要求
 
 - **覆盖率**: 核心算法（`scripts/scoreCalculator.ts`）的单元测试覆盖率需 ≥ 85%。
-- **命令**:
   ```bash
-  # 本地运行测试
-  npm test
+  # 本地运行测试（bun test 默认开启覆盖率，阈值 85% 见 bunfig.toml）
+  bun test
 
   # 带覆盖率报告
-  npm run test:coverage
+  bun test --coverage
   ```
-- **数据模拟**: 调用 GitHub API 的测试必须使用 `nock` 或 `msw` 模拟网络请求，严禁在单元测试中真正发起网络调用。
+- **数据模拟**: 调用 GitHub API 的测试必须使用本地 mock（如 `Bun.serve` 起本地服务器并注入 baseUrl），严禁在单元测试中真正发起网络调用。
+  ```
+- **数据模拟**: 调用 GitHub API 的测试必须使用本地 mock（如 `Bun.serve` 起本地服务器并注入 baseUrl），严禁在单元测试中真正发起网络调用。
 
 ---
 
@@ -199,13 +199,14 @@ feat(scoring): add Zig language support with weight 1.2
 
 ```bash
 # 1. 安装根目录依赖（脚本 + 评分引擎）
-npm install
+bun install
 
-# 2. 前端依赖
-npm --prefix frontend install
+# 2. 前端依赖（如有）
+bun install --cwd frontend
 
-# 3. 运行测试
-npm test
+# 3. 运行测试（含覆盖率，阈值见 bunfig.toml）
+bun test
+```
 ```
 
 ---
