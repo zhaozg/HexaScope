@@ -132,6 +132,7 @@ zhaozg/HexaScope/
 ├── .github/
 │   ├── workflows/
 │   │   ├── analyze.yml          # 核心评估工作流
+│   │   ├── ci.yml               # CI 质量门禁（测试/类型/Lint/构建）
 │   │   └── deploy-pages.yml     # Pages 部署
 │   └── ISSUE_TEMPLATE/
 │       └── evaluate.md          # 用户手动触发模板
@@ -176,6 +177,25 @@ bun run frontend:preview
 
 > 开发环境访问 `/?user=demo` 可查看本地演示报告；其余用户名经 dev server 代理
 > 直读 `raw.githubusercontent.com` 上的真实报告（ADR-001）。
+
+## 🚀 持续集成与部署（CI/CD）
+
+项目通过 GitHub Actions 自动化质量检查与站点发布（工作流见 `.github/workflows/`）：
+
+| 工作流 | 触发时机 | 作用 |
+|--------|----------|------|
+| `ci.yml` | main 推送 / 每个 PR | 单元测试（覆盖率 ≥ 85%）、TypeScript 类型检查、ESLint、Prettier、前端构建验证 |
+| `deploy-pages.yml` | main 推送（frontend/ 变更） | 构建 Nuekit SPA 并部署到 GitHub Pages |
+
+**Pages 部署前提**（一次性配置）：
+
+1. 仓库 **Settings → Pages → Build and deployment**
+2. **Source** 选择 **GitHub Actions**
+3. 此后每次 `frontend/` 变更推送 main，站点自动发布到 `https://zhaozg.github.io/HexaScope/`
+
+> 部署脚本会将构建产物的资源引用改写为相对路径，天然适配 GitHub Pages
+> 子路径托管；CI 通过 `paths-ignore` 排除 `results/**`，避免评估数据自动提交
+> 时触发无意义的 CI 循环（节省 Actions 分钟数）。
 
 ## 🤝 贡献指南
 

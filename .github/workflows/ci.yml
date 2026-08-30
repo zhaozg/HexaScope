@@ -1,0 +1,86 @@
+name: CI
+
+# 质量门禁：main 推送与 Pull Request 时运行单元测试（含覆盖率）、
+# 类型检查、ESLint、Prettier 格式检查与前端构建验证。
+#
+# 分钟数优化（AGENTS.md 要求）：
+# - 路径过滤：docs/、results/ 等纯文档/数据变更不触发（避免 analyze.yml
+#   提交 results 时造成 CI 循环）
+# - 缓存 Bun 依赖（bun.lock 哈希为 key）
+# - concurrency 取消同一分支的过期运行
+
+"on":
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'results/**'
+      - 'README.md'
+      - 'DESIGN.md'
+      - 'AGENTS.md'
+      - 'CONTRIBUTING.md'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'results/**'
+      - 'README.md'
+      - 'DESIGN.md'
+      - 'AGENTS.md'
+      - 'CONTRIBUTING.md'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: 验证（测试 / 类型 / Lint / 格式 / 前端构建）
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1
+
+      - name: 缓存 Bun 依赖
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: 安装依赖（锁定版本，保证可复现）
+        run: bun install --frozen-lockfile
+
+      - name: 单元测试（覆盖率阈值 ≥ 85%，见 bunfig.toml）
+        run: bun test
+
+      - name: 类型检查
+        run: bun run build
+
+      - name: ESLint
+        run: bun run lint
+
+      - name: Prettier 格式检查
+        run: bun run format:check
+
+      - name: 前端构建验证
+        run: |
+          bun run frontend:build
+          test -f frontend/.dist/index.html
+          test -f frontend/.dist/ui/entry.html.js
+          echo '前端构建产物校验通过'

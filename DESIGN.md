@@ -191,7 +191,18 @@ Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
 - 每个用户的评估报告以 JSON + SVG 格式存储于 `results/` 目录
 - Pages 站点提供交互式雷达图（mermaid.js 渲染 radar-beta 图表，图表代码客户端确定性生成，与 `scripts/generateRadar.ts` 算法一致）
 - 支持用户间对比、趋势查看等功能
-- 通过 URL 路由 `/pages/{username}` 展示对应用户的仪表板
+- 通过查询参数路由 `?user={username}` 展示对应用户的仪表板（适配 Pages 子路径，详见 ADR-003）
+
+**部署与 CI（`.github/workflows/`）**：
+
+| 工作流 | 触发时机 | 职责 |
+|--------|----------|------|
+| `ci.yml` | main 推送 / PR（docs、results 变更除外） | 质量门禁：单元测试（覆盖率 ≥ 85%）、tsc 类型检查、ESLint、Prettier、前端构建验证 |
+| `deploy-pages.yml` | main 推送（frontend/ 或构建脚本/依赖变更） | `bun run frontend:build` 后经 `actions/deploy-pages` 部署到 GitHub Pages |
+
+- **部署源**：仓库 Settings → Pages → Source 选择 **GitHub Actions**
+- **子路径适配**：`scripts/frontend-build.ts` 在 `nue build` 后把资源引用改写为相对路径，站点可直接运行于 `https://zhaozg.github.io/HexaScope/`
+- **分钟数优化**：两个工作流均使用 Bun 依赖缓存（`bun.lock` 哈希为 key）；`ci.yml` 通过 `paths-ignore` 排除 `results/**`，避免 analyze.yml 提交评估结果时触发 CI 循环
 
 
 ## 四、六维评估模型（数据来源映射）
@@ -466,6 +477,7 @@ zhaozg/HexaScope/
 ├── .github/
 │   ├── workflows/
 │   │   ├── analyze.yml          # 核心评估工作流
+│   │   ├── ci.yml               # CI 质量门禁（测试/类型/Lint/构建）
 │   │   └── deploy-pages.yml     # Pages 部署
 │   └── ISSUE_TEMPLATE/
 │       └── evaluate.md          # 用户手动触发模板

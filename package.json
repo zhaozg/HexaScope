@@ -17,6 +17,7 @@
     "test:coverage": "bun test --coverage",
     "lint": "eslint scripts tests",
     "format": "prettier --write \"scripts/**/*.ts\" \"tests/**/*.ts\"",
+    "format:check": "prettier --check \"scripts/**/*.ts\" \"tests/**/*.ts\"",
     "frontend:dev": "cd frontend && nue dev",
     "frontend:build": "bun scripts/frontend-build.ts",
     "frontend:preview": "cd frontend && nue preview"
