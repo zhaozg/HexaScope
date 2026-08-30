@@ -102,6 +102,8 @@ jobs:
         run: |
           # actions/checkout 默认检出 detached HEAD，先切回 main 再提交推送
           git checkout main
+          # results/ 在 .gitignore 中（防手动误提交），Actions 用 -f 强制添加
+          git add -f results/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add results/
