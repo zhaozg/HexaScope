@@ -14,16 +14,17 @@
 
 **HexaScope** 是一个深度集成 GitHub 原生能力的开源开发者评估生态。
 
-只需一键安装 HexaScope GitHub App，系统便会自动通过 GitHub Actions 拉取你的公开数据，从**六个核心维度**生成能力雷达图，并通过 GitHub Pages 公开展示。你还可以在 IDE 中通过 GitHub Copilot 自然语言查询任何人的评估结果——**这一切完全免费**。
+只需一键安装 HexaScope GitHub App，系统便会自动通过 GitHub Actions 拉取**你自己**的公开数据，从**六个核心维度**生成能力雷达图，并通过 GitHub Pages 公开展示。你还可以在 IDE 中通过 GitHub Copilot 自然语言查询**自己的**评估结果——**这一切完全免费**。
 
 ## ✨ 核心特性
 
 - **🤖 全自动评估**：安装 GitHub App 即触发首次评估，此后每周自动更新，始终保持最新
-- **🧠 Copilot 自然语言交互**：在 IDE 中通过 `@HexaScope 分析 @用户名` 直接查询雷达图
+- **🧠 Copilot 自然语言交互**：在 IDE 中通过 `@HexaScope 查看我的报告` 直接查询自己的雷达图（仅支持自我评估）
 - **📊 六维能力模型**：技术硬实力 · 架构设计 · 问题排查 · 工程化效能 · 沟通协作 · 业务洞察
 - **🛡️ 反作弊检测**：内置 10 项红牌指标（自合并比例、Fork 囤积、AI 代码特征、Bot 行为等），过滤虚假繁荣
 - **💰 完全免费**：基于 GitHub Actions 免费额度运行，无需付费
 - **📦 开源可自托管**：MIT 协议，企业可私有化部署
+- **🔒 仅自我评估**：只评估安装 App 的账户本人，不评估/公开他人画像；自我评估存在主观偏差（戏剧化），结果仅供参考
 
 ## 🚀 快速开始
 
@@ -56,7 +57,7 @@ https://github.com/zhaozg/HexaScope/actions
 |------|---------|
 | 🌐 **GitHub Pages** | `https://zhaozg.github.io/HexaScope/[你的用户名]` |
 | 🏷️ **README Badge** | 将 `![HexaScope](https://zhaozg.github.io/HexaScope/[用户名]/badge.svg)` 嵌入个人主页 |
-| 💬 **Copilot Chat** | 在 IDE 中输入 `@HexaScope 分析 @用户名` |
+| 💬 **Copilot Chat** | 在 IDE 中输入 `@HexaScope 查看我的报告`（仅本人） |
 
 ### 4️⃣ 自动更新
 
@@ -118,8 +119,8 @@ HexaScope 的能力评估基于经典的**程序员六维模型**，六个顶点
 |------|---------|------|
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
-| **评分核心** | Python + NumPy | 确定性六维评分算法 |
-| **雷达图生成** | Python (matplotlib) / Node.js (Sharp) | 生成 SVG/PNG 雷达图 |
+| **评分核心** | Node.js (TypeScript) | 确定性六维评分算法 |
+| **雷达图生成** | Node.js (SVG 模板) | 生成 SVG/PNG 雷达图 |
 | **前端仪表板** | React + ECharts | GitHub Pages 托管 |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
@@ -135,10 +136,11 @@ zhaozg/HexaScope/
 │   └── ISSUE_TEMPLATE/
 │       └── evaluate.md          # 用户手动触发模板
 ├── scripts/
-│   ├── fetch_user_data.py       # 数据采集
-│   ├── score_calculator.py      # 六维评分
-│   ├── redflag_detector.py      # 红牌检测
-│   └── generate_radar.py        # 雷达图生成
+├── scripts/
+│   ├── fetchUserData.ts         # 数据采集
+│   ├── scoreCalculator.ts       # 六维评分
+│   ├── redflagDetector.ts       # 红牌检测
+│   └── generateRadar.ts         # 雷达图生成
 ├── frontend/
 │   ├── src/                     # React 仪表板
 │   └── public/

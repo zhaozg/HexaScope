@@ -82,9 +82,11 @@ on:
     - cron: '0 0 * * 0'  # 每周日 00:00 UTC
   # 4. 手动触发
   workflow_dispatch:
+  # 4. 手动触发（仅评估自己）
+  workflow_dispatch:
     inputs:
       username:
-        description: 'GitHub 用户名'
+        description: 'GitHub 用户名（仅限本人）'
         required: true
 
 # 权限声明
@@ -103,22 +105,26 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 采集用户数据
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 采集用户数据
         run: |
-          python scripts/fetch_user_data.py ${{ github.actor }}
+          node scripts/fetchUserData.mjs ${{ github.actor }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 六维评分计算
         run: |
-          python scripts/score_calculator.py
+          node scripts/scoreCalculator.mjs
 
       - name: 红牌检测
         run: |
-          python scripts/redflag_detector.py
+          node scripts/redflagDetector.mjs
 
       - name: 生成雷达图
         run: |
-          python scripts/generate_radar.py
+          node scripts/generateRadar.mjs
 
       - name: 提交结果到仓库
         run: |
@@ -141,10 +147,10 @@ jobs:
 用户在 HexaScope 项目仓库 (`zhaozg/HexaScope`) 的 Issues 中评论以下命令：
 
 ```
-@HexaScope evaluate @用户名
+@HexaScope evaluate
 ```
 
-系统通过 `issue_comment` 事件捕获该评论，解析用户名后触发评估流程。这避免了多 App 监听同一仓库 Issue 的权限冲突问题。
+系统通过 `issue_comment` 事件捕获该评论，解析评论者身份后触发评估。**仅支持评估评论者本人**；若评论指定了其他用户名，将返回提示“HexaScope 仅支持自我评估，无法评估他人”。这避免了多 App 监听同一仓库 Issue 的权限冲突问题。
 
 ### 3.3 GitHub Copilot Extensions（自然语言交互）
 
@@ -153,8 +159,8 @@ HexaScope 可发布为 **GitHub Copilot Extension**，让用户在 IDE 内通过
 **使用示例**：
 
 ```
-用户: @HexaScope 帮我分析一下 zhaozg 的能力雷达图
-Copilot: [调用 HexaScope API] 正在获取 zhaozg 的六维评估结果...
+用户: @HexaScope 帮我分析我的能力雷达图
+Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
          技术硬实力: 92/100
          架构设计: 85/100
          问题排查: 78/100
@@ -162,6 +168,7 @@ Copilot: [调用 HexaScope API] 正在获取 zhaozg 的六维评估结果...
          沟通协作: 65/100
          业务洞察: 72/100
          [附雷达图]
+         ⚠️ 注：HexaScope 仅支持自我评估，结果仅供参考（自我评估可能存在主观偏差）。
 ```
 
 **技术实现**：
@@ -209,7 +216,7 @@ Copilot: [调用 HexaScope API] 正在获取 zhaozg 的六维评估结果...
 
 ### 4.2 评分逻辑细则
 
-各维度 0-100 分，通过确定性算法计算。以下是各维度的核心计算公式：
+各维度 0-100 分，通过确定性算法计算。以下为各维度核心公式的**伪代码**（实际实现采用 TypeScript / Node.js ≥ 18，逻辑保持一致）：
 
 **1. 技术硬实力（满分100）**
 
@@ -375,7 +382,7 @@ return min(max(score, 0), 100)
 │  Step 3: 查看评估报告（多种方式）                              │
 │  ├── GitHub Pages: https://zhaozg.github.io/HexaScope/[user]   │
 │  ├── README Badge: ![HexaScope](...svg) 嵌入个人主页           │
-│  └── Copilot Chat: @HexaScope 分析 @用户名                     │
+│  └── Copilot Chat: @HexaScope 查看我的报告                     │
 └────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -383,6 +390,7 @@ return min(max(score, 0), 100)
 │  Step 4: 定期增量更新（每周一次，仅限活跃用户）                │
 │          → 始终保持评估结果与最新活动同步                      │
 └────────────────────────────────────────────────────────────────┘
+> **🔒 隐私边界（仅自我评估）**：HexaScope **只评估安装 App 的账户本人**，不评估、不公开任何他人画像。⚠️ 自我评估存在主观偏差（“戏剧化”）：分数可能受自我认知偏差影响，报告**仅供参考**，不构成招聘、评级或任何决策依据。
 ```
 
 
@@ -392,8 +400,8 @@ return min(max(score, 0), 100)
 |------|---------|------|
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
-| **评分核心** | Python + NumPy | 确定性六维评分算法 |
-| **雷达图生成** | Python (matplotlib) + svg | 生成 SVG/PNG 雷达图 |
+| **评分核心** | Node.js (TypeScript) | 确定性六维评分算法 |
+| **雷达图生成** | Node.js (SVG 模板) | 生成 SVG/PNG 雷达图 |
 | **前端仪表板** | React + ECharts | GitHub Pages 托管 |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
@@ -415,7 +423,7 @@ return min(max(score, 0), 100)
 
 1. **首次评估**：用户安装 App 后立即触发一次完整评估
 2. **增量更新**：定时任务**仅更新活跃用户**（近 7 天有提交活动的用户），而非全量更新所有已安装用户
-3. **按需刷新**：用户可通过 Issue 评论 `@HexaScope evaluate @用户名` 手动触发
+3. **按需刷新**：用户可通过 Issue 评论 `@HexaScope evaluate` 手动触发（仅评估自己）
 4. **缓存策略**：评估结果缓存 24 小时，缓存期内重复请求直接返回缓存数据
 
 **成本估算**（以 1000 名安装用户为基准）：
@@ -468,10 +476,11 @@ zhaozg/HexaScope/
 │   └── ISSUE_TEMPLATE/
 │       └── evaluate.md          # 用户手动触发模板
 ├── scripts/
-│   ├── fetch_user_data.py       # 数据采集
-│   ├── score_calculator.py      # 六维评分
-│   ├── redflag_detector.py      # 红牌检测
-│   └── generate_radar.py        # 雷达图生成
+├── scripts/
+│   ├── fetchUserData.ts         # 数据采集
+│   ├── scoreCalculator.ts       # 六维评分
+│   ├── redflagDetector.ts       # 红牌检测
+│   └── generateRadar.ts         # 雷达图生成
 ├── frontend/
 │   ├── src/                     # React 仪表板
 │   │   ├── App.jsx
@@ -494,8 +503,9 @@ zhaozg/HexaScope/
 │   ├── USER_GUIDE.md            # 用户使用指南
 │   └── SELF_HOSTING.md          # 自托管部署指南
 ├── tests/                       # 单元测试
-│   ├── test_scoring.py
-│   └── test_redflag.py
+├── tests/                       # 单元测试
+│   ├── testScoring.ts
+│   └── testRedflag.ts
 ├── DESIGN.md                    # 本设计文档
 ├── LICENSE                      # MIT
 └── README.md

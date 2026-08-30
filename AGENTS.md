@@ -22,6 +22,7 @@
 | **零成本运营** | 在默认配置下，项目必须完全运行于 GitHub Free 额度内（2000 min/month Actions）。AI 提出的方案若涉及高算力消耗，需附带成本分析。 |
 | **确定性优先** | 评分算法必须是确定性的（给定相同输入，输出相同结果）。AI 生成的红牌检测或评分逻辑不得包含随机因素。 |
 | **透明度** | 评分公式必须可解释、可追溯。AI 提出的复杂计算需在 DESIGN.md 中更新说明。 |
+| **隐私边界** | **仅支持用户评估自己**（安装 App 的账户）。不得评估或公开他人画像。自我评估存在主观偏差（戏剧化），报告中必须附带免责声明。 |
 
 ---
 
@@ -31,50 +32,54 @@
 
 | 领域 | 技术栈 | 版本要求 |
 |------|--------|----------|
-| **后端/脚本** | Python | ≥ 3.9 |
+| **后端/脚本（评分引擎）** | Node.js (TypeScript) | Node.js ≥ 18, npm ≥ 9 |
 | **前端仪表板** | React + ECharts | Node.js ≥ 18, npm ≥ 9 |
 | **自动化** | GitHub Actions (YAML) | 使用 `ubuntu-latest` 运行器 |
 | **数据格式** | JSON, SVG, YAML | — |
 
 ### 3.2 依赖管理
 
-- **Python**: 所有依赖必须在 `requirements.txt` 中锁定版本（`pip freeze` 生成）。
-- **Node.js**: 所有依赖必须在 `frontend/package.json` 中定义，`package-lock.json` 同步提交。
+- **Node.js**: 所有依赖（脚本 + 前端）统一在根目录 `package.json` 中定义，`package-lock.json` 同步提交。
 - **禁止**: 严禁在代码中动态下载或执行外部二进制文件。
 
 ### 3.3 环境变量
 
 AI 生成的代码必须通过环境变量读取敏感信息（如 Token），**严禁硬编码**。
 
-```python
-# ✅ 正确
-import os
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+```typescript
+// ✅ 正确
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-# ❌ 错误
-GITHUB_TOKEN = "ghp_xxxxxxxxxxxx"
+// ❌ 错误
+const GITHUB_TOKEN = "ghp_xxxxxxxxxxxx";
 ```
 
 ---
 
 ## 4. 编码规范
 
-### 4.1 Python（`scripts/`, `tests/`）
+### 4.1 TypeScript / Node.js（`scripts/`, `tests/`）
 
-- **风格**: 严格遵循 [PEP 8](https://pep8.org/)，行宽 ≤ 100 字符。
-- **格式化**: 使用 `black`（默认配置）。
+- **风格**: 遵循 [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)，统一使用 TypeScript。
+- **格式化**: 使用 `prettier`（默认配置），行宽 ≤ 100 字符。
 - **类型注解**: 所有函数签名必须包含类型注解。
 
-```python
-# ✅ 正确示例
-from typing import List, Dict
+```typescript
+// ✅ 正确示例
+export interface LanguageWeights {
+  [lang: string]: number;
+}
 
-def calculate_language_score(languages: List[str], weights: Dict[str, float]) -> float:
-    """计算语言广度得分。"""
-    return sum(weights.get(lang, 0.7) for lang in languages)
+export function calculateLanguageScore(
+  languages: string[],
+  weights: LanguageWeights,
+): number {
+  /** 计算语言广度得分。 */
+  return languages.reduce((sum, lang) => sum + (weights[lang] ?? 0.7), 0);
+}
 ```
 
-- **文档字符串**: 公共函数必须包含符合 Google 风格的 docstring。
+- **JSDoc**: 公共函数必须包含 JSDoc 风格注释。
 
 ### 4.2 JavaScript / React（`frontend/`）
 
@@ -144,16 +149,16 @@ feat(scoring): add Zig language support with weight 1.2
 
 ## 7. 测试要求
 
-- **覆盖率**: 核心算法（`scripts/score_calculator.py`）的单元测试覆盖率需 ≥ 85%。
+- **覆盖率**: 核心算法（`scripts/scoreCalculator.ts`）的单元测试覆盖率需 ≥ 85%。
 - **命令**:
   ```bash
   # 本地运行测试
-  pytest tests/
+  npm test
 
   # 带覆盖率报告
-  pytest --cov=scripts tests/
+  npm run test:coverage
   ```
-- **数据模拟**: 调用 GitHub API 的测试必须使用 `requests-mock` 或 `vcrpy` 模拟网络请求，严禁在单元测试中真正发起网络调用。
+- **数据模拟**: 调用 GitHub API 的测试必须使用 `nock` 或 `msw` 模拟网络请求，严禁在单元测试中真正发起网络调用。
 
 ---
 
@@ -181,7 +186,7 @@ feat(scoring): add Zig language support with weight 1.2
 
 - [ ] 是否引入了外部非 GitHub 原生依赖？
 - [ ] 是否包含硬编码的敏感信息？
-- [ ] 函数是否包含类型注解和 docstring？
+- [ ] 函数是否包含类型注解和 JSDoc 注释？
 - [ ] 是否更新了对应的测试文件？
 - [ ] 提交信息是否符合 Conventional Commits 格式？
 - [ ] 是否无意中修改了 `results/` 目录？
@@ -193,15 +198,14 @@ feat(scoring): add Zig language support with weight 1.2
 供 AI 生成代码时参考环境初始化流程：
 
 ```bash
-# 1. 克隆并设置 Python 环境
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+# 1. 安装根目录依赖（脚本 + 评分引擎）
+npm install
 
-# 2. 前端
-cd frontend && npm install
+# 2. 前端依赖
+npm --prefix frontend install
 
 # 3. 运行测试
-pytest tests/
+npm test
 ```
 
 ---

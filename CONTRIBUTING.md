@@ -22,9 +22,8 @@
 
 | 工具 | 最低版本 | 用途 |
 |------|---------|------|
-| **Python** | 3.9+ | 评分引擎、数据采集脚本 |
-| **Node.js** | 18+ | 前端仪表板 |
-| **npm** | 9+ | 前端依赖管理 |
+| **Node.js** | 18+ | 评分引擎、数据采集脚本、前端仪表板 |
+| **npm** | 9+ | 依赖管理 |
 | **Git** | 2.30+ | 版本控制 |
 | **act** (可选) | 0.2+ | 本地测试 GitHub Actions |
 
@@ -43,22 +42,17 @@ git remote add upstream https://github.com/zhaozg/HexaScope.git
 
 ### 3. 安装依赖
 
-**Python 环境（评分引擎）：**
+**根目录依赖（脚本 + 评分引擎）：**
 
 ```bash
-# 建议使用虚拟环境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# 安装依赖
-pip install -r requirements.txt
+# 在项目根目录安装全部依赖
+npm install
 ```
 
 **前端环境（React 仪表板）：**
 
 ```bash
-cd frontend
-npm install
+npm --prefix frontend install
 ```
 
 ### 4. 配置环境变量
@@ -79,11 +73,11 @@ DEBUG=true
 确保所有测试通过后再提交代码：
 
 ```bash
-# Python 单元测试
-pytest tests/
+```bash
+# 运行单元测试
+npm test
 
 # 前端 lint 检查
-cd frontend
 npm run lint
 ```
 
@@ -153,14 +147,14 @@ git checkout -b fix/bug-in-scoring-algorithm
 ### 3. 编写代码与测试
 
 - **代码风格**：
-  - Python：遵循 [PEP 8](https://pep8.org/) 规范，使用 `black` 格式化
+  - TypeScript/Node.js：遵循 [Airbnb 风格指南](https://github.com/airbnb/javascript)，使用 `prettier` 格式化
   - JavaScript/React：遵循 [Airbnb 风格指南](https://github.com/airbnb/javascript)，使用 `eslint` 检查
   - YAML（Actions 工作流）：使用 2 空格缩进
 
 - **测试要求**：
   - 新增功能应附带对应的单元测试
   - 修复 Bug 应添加回归测试，防止问题再次出现
-  - 确保所有测试通过：`pytest tests/`
+  - 确保所有测试通过：`npm test`
 
 - **提交信息规范**：
 
@@ -221,17 +215,17 @@ Closes #[Issue编号]
 
 ## 🧪 测试指南
 
-### Python 测试
+### Node.js 测试（Vitest / Jest）
 
 ```bash
 # 运行所有测试
-pytest tests/
+npm test
 
 # 运行特定测试文件
-pytest tests/test_scoring.py
+npm test -- tests/testScoring.ts
 
 # 带覆盖率报告
-pytest --cov=scripts tests/
+npm run test:coverage
 ```
 
 ### 前端测试
@@ -266,7 +260,7 @@ act push -j evaluate
 
 | 目录/文件 | 贡献方向 | 技能要求 |
 |----------|---------|---------|
-| `scripts/` | 评分算法、数据采集、红牌检测逻辑 | Python、GitHub API |
+| `scripts/` | 评分算法、数据采集、红牌检测逻辑 | TypeScript、GitHub API |
 | `frontend/` | UI/UX 优化、雷达图交互、仪表板功能 | React、ECharts、CSS |
 | `.github/workflows/` | CI/CD 流程优化、自动化策略 | YAML、GitHub Actions |
 | `docs/` | 使用指南、API 文档、部署文档 | Markdown、技术写作 |
@@ -282,7 +276,7 @@ act push -j evaluate
 - [ ] 所有 CI 检查通过（GitHub Actions 绿色）
 - [ ] 代码已通过自 Review（无明显的拼写/逻辑错误）
 - [ ] 已更新相关文档（如有 API 变更）
-- [ ] 新增依赖已添加到 `requirements.txt` 或 `package.json`
+- [ ] 新增依赖已添加到 `package.json`（含 `package-lock.json` 同步提交）
 - [ ] 无硬编码的敏感信息（Token、密钥等）
 
 ---
