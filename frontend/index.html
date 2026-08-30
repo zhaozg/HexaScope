@@ -1,0 +1,40 @@
+<!doctype dhtml>
+
+<script>
+  import { state } from 'state'
+
+  // 查询参数路由：?user=<username>
+  // 与路径路由（/:id）不同，查询路由与部署子路径无关，
+  // 可直接用于 GitHub Pages（https://zhaozg.github.io/HexaScope/?user=xxx），
+  // 无需 history fallback（404.html）等额外处理（ADR-001）。
+  state.setup({ query: ['user'] })
+</script>
+
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="./">HexaScope</a>
+    <nav>
+      <a href="./">首页</a>
+      <a href="./?user=demo">演示</a>
+      <a href="https://github.com/zhaozg/HexaScope" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <article />
+  </main>
+
+  <footer class="site-footer">
+    <p>基于 GitHub 公开数据的自我评估工具 · 开源免费 · <a href="https://github.com/zhaozg/HexaScope" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
+
+  <script>
+    state.on('user', ({ user }) => {
+      this.mount(user ? 'dashboard' : 'home', 'article', { user })
+    })
+
+    mounted() {
+      state.init()
+    }
+  </script>
+</body>

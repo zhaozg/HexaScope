@@ -1,0 +1,238 @@
+/* HexaScope 组件样式：顶栏 / 首页 / 仪表板面板 / 雷达 / 得分条 / 红牌 */
+
+@layer components {
+
+  /* ---------- 顶栏 ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem !important;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .wordmark {
+    color: var(--text-strong);
+    font-weight: 800;
+    font-size: 1.1em;
+    letter-spacing: .02em;
+  }
+  .wordmark:hover { text-decoration: none; }
+
+  .topbar nav {
+    display: flex;
+    gap: 1.25rem;
+    font-size: .9em;
+  }
+  .topbar nav a { color: var(--text-subtle); }
+  .topbar nav a:hover { color: var(--text-strong); }
+
+  /* ---------- 页脚 ---------- */
+  .site-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    padding-bottom: 2.5rem !important;
+    border-top: 1px solid var(--border);
+    color: var(--text-subtle);
+    font-size: .85em;
+  }
+
+  /* ---------- 首页 ---------- */
+  .hero {
+    text-align: center;
+    padding: 3.5rem 1rem 2rem;
+  }
+  .hero h1 {
+    font-size: 2.6em;
+    letter-spacing: -.02em;
+    margin-bottom: .15em;
+  }
+  .hero p { color: var(--text-subtle); }
+  .hero .hero-sub { font-size: .875em; margin-top: .25em; }
+
+  .search-form {
+    display: flex;
+    gap: .6rem;
+    max-width: 480px;
+    margin: 1.5rem auto;
+  }
+  .search-form input {
+    flex: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: .5em;
+    padding: .7em 1em;
+    color: var(--text);
+    font-size: 1em;
+    outline: none;
+  }
+  .search-form input:focus { border-color: var(--brand); }
+  .search-form button {
+    background: var(--brand);
+    border: 0;
+    color: #fff;
+    font-weight: 600;
+    padding: 0 1.4em;
+    border-radius: .5em;
+    cursor: pointer;
+  }
+  .search-form button:hover { filter: brightness(1.1); }
+
+  .demo-hint { text-align: center; color: var(--text-subtle); font-size: .875em; }
+
+  /* ---------- 状态面板（加载 / 错误） ---------- */
+  .state-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--text-subtle);
+  }
+  .state-panel.error h2 { color: var(--bad); }
+  .state-panel .btn { margin-top: 1rem; }
+
+  /* ---------- 报告头部 ---------- */
+  .report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .report-header h1 { margin-bottom: .1em; }
+
+  .overall-score {
+    text-align: center;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .9rem 1.6rem;
+    min-width: 120px;
+  }
+  .overall-score strong {
+    display: block;
+    font-size: 2em;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .overall-score span { font-size: .8em; color: var(--text-subtle); }
+  .overall-score.is-high strong { color: var(--good); }
+  .overall-score.is-mid strong { color: var(--warn); }
+
+  /* ---------- 通用面板 ---------- */
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .panel h2 { margin-bottom: 1rem; }
+
+  /* ---------- 雷达图 ---------- */
+  .radar-panel .radar {
+    display: flex;
+    justify-content: center;
+    min-height: 360px;
+  }
+  .radar-panel .radar svg { max-width: 100%; height: auto; }
+
+  /* ---------- 六维得分条 ---------- */
+  .score-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: .3em;
+  }
+  .score-name { color: var(--text-strong); font-weight: 600; }
+  .score-value {
+    font-family: var(--mono);
+    font-weight: 700;
+    color: var(--text-subtle);
+  }
+  .score-value.is-good { color: var(--good); }
+  .score-value.is-warn { color: var(--warn); }
+  .score-value.is-bad { color: var(--bad); }
+
+  .score-track {
+    height: 8px;
+    background: var(--bg-subtle);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand), var(--purple));
+    border-radius: 4px;
+  }
+  .score-weight { font-size: .75em; color: var(--text-subtle); }
+
+  /* ---------- 红牌列表 ---------- */
+  .flag-count {
+    display: inline-block;
+    font-size: .75em;
+    font-weight: 600;
+    color: var(--bad);
+    border: 1px solid var(--bad);
+    border-radius: 9em;
+    padding: .1em .7em;
+    margin-left: .5em;
+    vertical-align: middle;
+  }
+  .flag-count.clean { color: var(--good); border-color: var(--good); }
+
+  .flag-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .6rem;
+  }
+  .flag-item {
+    display: flex;
+    gap: .8rem;
+    align-items: flex-start;
+    border: 1px solid var(--border);
+    border-radius: .6em;
+    padding: .75em 1em;
+    opacity: .55;
+  }
+  .flag-item.is-detected {
+    border-color: rgba(248, 81, 73, .55);
+    background: rgba(248, 81, 73, .08);
+    opacity: 1;
+  }
+  .flag-badge {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: .8em;
+    color: var(--text-subtle);
+    border: 1px solid var(--border-strong);
+    border-radius: .4em;
+    padding: .15em .5em;
+  }
+  .flag-item.is-detected .flag-badge { color: var(--bad); border-color: var(--bad); }
+  .flag-body strong { color: var(--text-strong); font-size: .95em; }
+  .flag-body p { margin: .2em 0 0; font-size: .85em; color: var(--bad); }
+  .flag-body .flag-ok { color: var(--text-subtle); }
+
+  /* ---------- 免责声明 ---------- */
+  .disclaimer {
+    font-size: .8em;
+    color: var(--text-subtle);
+    border-left: 3px solid var(--border-strong);
+    padding-left: 1em;
+    margin-top: 1.5rem;
+  }
+}

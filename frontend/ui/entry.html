@@ -1,0 +1,213 @@
+<!doctype dhtml lib>
+
+<!--
+  HexaScope 前端组件库（Nuekit 2.0 SPA）
+
+  组件：
+    - home      首页：品牌 + 用户名查询表单
+    - dashboard 用户仪表板：综合得分、雷达图、六维卡片、红牌列表、免责声明
+
+  注意（Nuekit 约束）：import 必须放在本文件顶层 <script>（模块作用域），
+  组件 <article> 内的 <script> 只允许定义方法，通过闭包引用顶层导入。
+
+  数据流（ADR-001）：开发环境走 /api/report/:username（本地 mock / raw 代理），
+  生产环境直连 raw.githubusercontent.com 读取 results/ 下的评估报告。
+-->
+
+<!-- ===================== 模块级依赖与共享助手 ===================== -->
+<script>
+  import { state } from 'state'
+  import mermaid from 'mermaid'
+
+  // 生产数据源（ADR-001）：raw.githubusercontent.com 直读
+  const RAW_BASE = 'https://raw.githubusercontent.com/zhaozg/HexaScope/main/results'
+  // 开发环境（nue dev）本地标记
+  const DEV = ['localhost', '127.0.0.1'].includes(location.hostname)
+
+  // 加载评估报告：开发环境先试本地代理（含 demo 演示数据），失败回退 raw；生产直连 raw
+  async function loadReport(username) {
+    const urls = DEV
+      ? [`/api/report/${username}`, `${RAW_BASE}/${username}/report.json`]
+      : [`${RAW_BASE}/${username}/report.json`]
+    for (const url of urls) {
+      try {
+        const res = await fetch(url)
+        if (res.ok) return await res.json()
+      } catch (err) {
+        /* 尝试下一个候选 URL */
+      }
+    }
+    throw new Error(`results/${username}/report.json 不存在或尚未生成`)
+  }
+
+  // 客户端雷达图代码生成（与 scripts/generateRadar.ts 的 generateRadarMermaid 保持一致的确定性算法）
+  function buildRadarMermaid(dimensions, username) {
+    const axis = dimensions.map((d, i) => `a${i + 1}["${d.name}"]`).join(', ')
+    const values = dimensions.map((d) => round(d.score)).join(', ')
+    const title = username ? `HexaScope 六维能力雷达图 - ${username}` : 'HexaScope 六维能力雷达图'
+    return [
+      'radar-beta',
+      `  title "${title}"`,
+      `  axis ${axis}`,
+      `  curve c1["综合能力"]{${values}}`,
+      '  max 100',
+      '  min 0',
+      '  graticule circle',
+      '  ticks 5',
+      '  showLegend false',
+    ].join('\n')
+  }
+
+  const round = (value) => Math.round(value * 100) / 100
+  const formatDate = (iso) =>
+    new Date(iso).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })
+</script>
+
+<!-- ===================== 首页 ===================== -->
+<article :is="home">
+  <header class="hero">
+    <h1>HexaScope</h1>
+    <p>基于 GitHub 公开数据的开发者六维能力雷达图生成器</p>
+    <p class="hero-sub">开源 · 免费 · 深度集成 GitHub · 自我评估仅供参考</p>
+  </header>
+
+  <form class="search-form" :onsubmit="go" autocomplete="off">
+    <input name="user" placeholder="输入 GitHub 用户名" required />
+    <button type="submit">生成雷达图</button>
+  </form>
+
+  <p class="demo-hint">
+    没有评估报告？<a href="./?user=demo">查看演示报告</a>
+  </p>
+
+  <script>
+    go(e) {
+      const name = new FormData(e.target).get('user').trim()
+      if (name) state.user = name
+    }
+  </script>
+</article>
+
+<!-- ===================== 用户仪表板 ===================== -->
+<article :is="dashboard">
+  <!-- 加载中 -->
+  <div :if="loading" class="state-panel">
+    <p>正在加载 <strong>{ user }</strong> 的评估报告…</p>
+  </div>
+
+  <!-- 错误 -->
+  <div :if="error" class="state-panel error">
+    <h2>未找到评估报告</h2>
+    <p>{ error }</p>
+    <p>仅支持评估已安装 HexaScope App 且已生成报告的账户（隐私边界）。</p>
+    <a class="btn" href="./">返回首页</a>
+  </div>
+
+  <!-- 报告主体 -->
+  <template :if="report">
+    <header class="report-header">
+      <div>
+        <h1>@{ report.username } 的六维能力画像</h1>
+        <time datetime="{ report.generatedAt }">生成于 { formatDate(report.generatedAt) }</time>
+      </div>
+      <div class="overall-score { overallClass() }">
+        <strong>{ round(report.overallScore) }</strong>
+        <span>综合得分</span>
+      </div>
+    </header>
+
+    <!-- 雷达图（mermaid radar，客户端确定性生成，与 scripts/generateRadar.ts 算法一致） -->
+    <section class="panel radar-panel">
+      <h2>能力雷达</h2>
+      <div class="radar" id="radar"></div>
+    </section>
+
+    <!-- 六维得分卡片 -->
+    <section class="panel">
+      <h2>六维得分</h2>
+      <ul class="score-list">
+        <li :each="dim in report.dimensions" class="score-item">
+          <div class="score-row">
+            <span class="score-name">{ dim.name }</span>
+            <span class="score-value { scoreClass(dim.score) }">
+              { round(dim.score) }
+            </span>
+          </div>
+          <div class="score-track">
+            <div class="score-fill" style="width:{ round(dim.score) }%"></div>
+          </div>
+          <span class="score-weight">权重 { round(dim.weight * 100) }%</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 红牌检测 -->
+    <section class="panel">
+      <h2>红牌检测
+        <span class="flag-count" :if="detectedCount()">触发 { detectedCount() } 项</span>
+        <span class="flag-count clean" :else>未触发任何红牌</span>
+      </h2>
+      <ul class="flag-list">
+        <li :each="flag in report.redFlags" class="flag-item [ is-detected: flag.detected ]">
+          <span class="flag-badge">#{ flag.id }</span>
+          <div class="flag-body">
+            <strong>{ flag.name }</strong>
+            <p :if="flag.detected">{ flag.detail }</p>
+            <p :else class="flag-ok">未触发</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 免责声明 -->
+    <aside class="disclaimer">
+      { report.disclaimer }
+    </aside>
+  </template>
+
+  <script>
+    // 报告数据就绪后渲染 mermaid 雷达图
+    async renderRadar() {
+      const el = this.root?.querySelector('#radar')
+      if (!el || !this.report) return
+      mermaid.initialize({ startOnLoad: false, theme: 'dark' })
+      const code = buildRadarMermaid(this.report.dimensions, this.report.username)
+      const id = 'radar-' + Math.random().toString(36).slice(2)
+      const { svg } = await mermaid.render(id, code)
+      el.innerHTML = svg
+    }
+
+    // 组件挂载：根据传入的 user 加载报告
+    async mounted() {
+      if (!this.user) return
+      this.update({ loading: true, error: null })
+      try {
+        const report = await loadReport(this.user)
+        this.update({ loading: false, report })
+        await this.renderRadar()
+      } catch (err) {
+        this.update({ loading: false, error: err.message })
+      }
+    }
+
+    // 综合得分等级类名
+    overallClass() {
+      const s = this.report?.overallScore ?? 0
+      if (s >= 80) return 'is-high'
+      if (s >= 60) return 'is-mid'
+      return ''
+    }
+
+    // 维度得分等级类名（避免模板内比较运算符干扰 tokenizer）
+    scoreClass(score) {
+      if (score >= 70) return 'is-good'
+      if (score >= 50) return 'is-warn'
+      return 'is-bad'
+    }
+
+    // 计算触发红牌数量
+    detectedCount() {
+      return this.report?.redFlags?.filter((f) => f.detected).length ?? 0
+    }
+  </script>
+</article>

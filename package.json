@@ -16,7 +16,10 @@
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
     "lint": "eslint scripts tests",
-    "format": "prettier --write \"scripts/**/*.ts\" \"tests/**/*.ts\""
+    "format": "prettier --write \"scripts/**/*.ts\" \"tests/**/*.ts\"",
+    "frontend:dev": "cd frontend && nue dev",
+    "frontend:build": "bun scripts/frontend-build.ts",
+    "frontend:preview": "cd frontend && nue preview"
   },
   "dependencies": {
     "@octokit/rest": "^21.0.2"
@@ -27,6 +30,7 @@
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.8.1"
+    "typescript-eslint": "^8.8.1",
+    "nuekit": "^2.0.0-beta.2"
   }
 }

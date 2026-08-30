@@ -3,6 +3,10 @@ node_modules/
 dist/
 coverage/
 
+# 前端构建产物（Nuekit SPA，由 frontend:build 生成）
+frontend/.dist/
+frontend/.nue/
+
 # 本地环境
 .env
 .env.local

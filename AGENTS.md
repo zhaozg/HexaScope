@@ -35,7 +35,7 @@
 | 领域 | 技术栈 | 版本要求 |
 |------|--------|----------|
 | **后端/脚本（评分引擎）** | Bun (TypeScript) | Bun ≥ 1.1 |
-| **前端仪表板** | React + ECharts / Mermaid | Bun ≥ 1.1 |
+| **前端仪表板** | NueJS (Nuekit 2.0) + mermaid.js | Bun ≥ 1.1 |
 | **数据格式** | JSON, SVG, YAML | — |
 
 ### 3.2 依赖管理
@@ -80,20 +80,30 @@ export function calculateLanguageScore(
 
 - **JSDoc**: 公共函数必须包含 JSDoc 风格注释。
 
-### 4.2 JavaScript / React（`frontend/`）
+### 4.2 HTML / JavaScript（`frontend/`，NueJS）
 
+- **框架**: Nuekit 2.0 SPA（`frontend/index.html` + `frontend/ui/*.html` 组件库），详见 https://nuejs.org/docs/。
+- **组件**: 每个组件为 `.html` 文件中的 `<article :is="name">` 块，逻辑写在组件内 `<script>`（挂载钩子 `mounted()`、状态更新 `this.update()`）。
+- **路由**: 使用查询参数路由 `state.setup({ query: ['user'] })`，适配 GitHub Pages 子路径部署（路径路由 `/:id` 在子路径下会错位）。
+- **数据**: 遵循 ADR-001，生产环境直连 `raw.githubusercontent.com` 读取报告；开发环境经 `server/index.js` 代理（`demo` 用户走本地 mock）。
+- **渲染**: 雷达图由 mermaid.js 渲染（`site.yaml` import_map 指向 CDN），图表代码客户端确定性生成，与 `scripts/generateRadar.ts` 算法保持一致。
+- **构建**: `bun run frontend:build`（内部执行 `nue build` 后改写资源为相对路径，适配 Pages 子路径）。
 - **Lint**: 所有 PR 必须通过 `bun run lint` 检查（零警告）。
-- **风格**: 遵循 [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)。
-- **组件**: 使用**函数式组件**和 Hooks，禁用 Class Components。
 
-```jsx
-// ✅ 正确示例
-import React, { useState, useEffect } from 'react';
-
-export const RadarChart = ({ username }) => {
-  const [data, setData] = useState(null);
-  // ...
-};
+```html
+<!-- ✅ 正确示例：NueJS 组件 -->
+<article :is="dashboard">
+  <h1>{ user } 的能力画像</h1>
+  <ul>
+    <li :each="dim in report.dimensions">{ dim.name }: { round(dim.score) }</li>
+  </ul>
+  <script>
+    async mounted() {
+      const report = await loadReport(this.user)
+      this.update({ report })
+    }
+  </script>
+</article>
 ```
 
 ### 4.3 YAML（`.github/workflows/`）
@@ -108,7 +118,7 @@ export const RadarChart = ({ username }) => {
 | 路径 | 职责 | AI 修改限制 |
 |------|------|-------------|
 | `scripts/` | 数据采集、评分逻辑、红牌检测、图片生成 | ✅ 允许修改，需附带测试更新 |
-| `frontend/` | 可视化仪表板 | ✅ 允许修改 UI 逻辑，禁止引入大型无关依赖 |
+| `frontend/` | NueJS 仪表板（index.html + ui/ 组件库 + css/） | ✅ 允许修改 UI 逻辑；禁止引入大型无关框架依赖；依赖统一声明在根 `package.json` |
 | `.github/workflows/` | CI/CD 流水线 | ⚠️ 修改时需评估 Actions 分钟数消耗 |
 | `results/` | 用户评估结果 | ❌ **严禁 AI 修改**（仅由 Actions 自动提交） |
 | `docs/` | 文档 | ✅ 鼓励修改，需保持 Markdown 格式规范 |
@@ -201,8 +211,7 @@ feat(scoring): add Zig language support with weight 1.2
 # 1. 安装根目录依赖（脚本 + 评分引擎）
 bun install
 
-# 2. 前端依赖（如有）
-bun install --cwd frontend
+# 2. 前端依赖已统一在根目录（nuekit 在 devDependencies），无需额外安装
 
 # 3. 运行测试（含覆盖率，阈值见 bunfig.toml）
 bun test

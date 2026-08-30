@@ -177,7 +177,7 @@ Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
 
 **数据读取方案**：
 
-前端仪表板（React + ECharts）通过以下方式读取评估数据：
+前端仪表板（NueJS / Nuekit 2.0 SPA）通过以下方式读取评估数据：
 
 - **方案 B（已采纳）**：前端直接通过 JavaScript 调用 GitHub Raw 文件链接获取数据
   - 数据 URL：`https://raw.githubusercontent.com/zhaozg/HexaScope/main/results/{username}/report.json`
@@ -189,7 +189,7 @@ Copilot: [调用 HexaScope API] 正在获取你的六维评估结果...
 **Pages 站点功能**：
 
 - 每个用户的评估报告以 JSON + SVG 格式存储于 `results/` 目录
-- Pages 站点提供交互式雷达图（基于 ECharts）
+- Pages 站点提供交互式雷达图（mermaid.js 渲染 radar-beta 图表，图表代码客户端确定性生成，与 `scripts/generateRadar.ts` 算法一致）
 - 支持用户间对比、趋势查看等功能
 - 通过 URL 路由 `/pages/{username}` 展示对应用户的仪表板
 
@@ -395,7 +395,8 @@ return min(max(score, 0), 100)
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
 | **评分核心** | Bun (TypeScript) | 确定性六维评分算法 |
-| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（前端渲染） |
+| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（报告产物 + 前端渲染） |
+| **前端仪表板** | NueJS (Nuekit 2.0 SPA) | GitHub Pages 静态托管，mermaid.js 渲染雷达图 |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
 | **许可证** | MIT License | 开源协议 |
@@ -474,17 +475,17 @@ zhaozg/HexaScope/
 │   ├── scoreCalculator.ts       # 六维评分
 │   ├── redflagDetector.ts       # 红牌检测
 │   └── generateRadar.ts         # 雷达图生成
-├── frontend/
-│   ├── src/                     # React 仪表板
-│   │   ├── App.jsx
-│   │   ├── components/
-│   │   │   ├── RadarChart.jsx   # ECharts 雷达图组件
-│   │   │   ├── ScoreCard.jsx    # 六维评分卡片
-│   │   │   └── RedFlagList.jsx  # 红牌警示列表
-│   │   └── utils/
-│   │       └── api.js           # 调用 GitHub Raw 读取数据
-│   └── public/
-│       └── index.html
+├── frontend/                   # NueJS 仪表板（Nuekit 2.0 SPA）
+│   ├── index.html               # SPA 入口：查询路由 ?user=、顶栏、页脚
+│   ├── site.yaml                # Nuekit 配置（import_map: mermaid CDN）
+│   ├── ui/
+│   │   └── entry.html           # 组件库：home（首页）、dashboard（用户仪表板）
+│   ├── server/
+│   │   ├── index.js             # 开发路由：/api/report/:username（demo mock / raw 代理）
+│   │   └── demo.json            # 本地演示报告
+│   └── css/
+│       ├── base.css             # 设计令牌 + 基础样式（深色主题）
+│       └── components.css       # 组件样式（面板/雷达/得分条/红牌）
 ├── results/                     # 评估结果（自动提交）
 │   └── {username}/
 │       ├── report.json          # 完整评估报告（含各维度得分拆解）
@@ -534,3 +535,21 @@ zhaozg/HexaScope/
 - 绝大多数用户的活动频率较低，其雷达图不会在短期内发生显著变化
 - 用户手动触发 `@HexaScope evaluate` 可随时刷新自己的数据
 - 将 Actions 分钟数控制在免费额度内，确保项目持续免费运营
+
+### ADR-003：为什么前端采用 NueJS 而非 React + ECharts
+
+**状态**：已采纳
+
+**背景**：原设计文档规划前端使用 React + ECharts 渲染仪表板。
+
+**决策**：改用 NueJS（Nuekit 2.0 SPA）构建前端，雷达图由 mermaid.js 渲染。
+
+**理由**：
+
+- **技术栈统一**：Nuekit 2.0 与项目同为 Bun 原生工具链，安装与构建零 Node 依赖，符合"GitHub First / 零成本运营"原则
+- **内容优先、极简**：组件即标准 HTML（`.html` 文件），无构建期 JSX/TSX 编译心智负担，样式采用原生 CSS 设计令牌
+- **SPA 路由契合静态托管**：查询参数路由（`?user=`）与 GitHub Pages 子路径部署天然兼容，无需 history fallback（`404.html`）技巧；路径路由 `/:id` 在子路径下会因前缀错位而失效
+- **雷达图渲染**：`scripts/generateRadar.ts` 产出的 radar-beta 代码由 mermaid.js（CDN import map 引入）直接渲染；仪表板内图表代码客户端确定性生成（与生成器算法一致），保证与得分卡片数据始终一致
+- **数据读取不变**：继续遵循 ADR-001，生产环境直连 `raw.githubusercontent.com` 读取 `results/` 报告，开发环境经 Nuekit dev server 代理（`demo` 用户走本地 mock）
+
+**代价**：Nuekit 2.0 处于 beta 阶段（v2.0.0-beta.2），版本迭代较快；前端组件为 HTML 内联脚本，无法纳入 bun test 单元测试，依赖构建期验证。

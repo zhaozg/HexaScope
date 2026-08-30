@@ -65,7 +65,7 @@ https://github.com/zhaozg/HexaScope/actions
 
 ## 📸 效果预览
 
-> 雷达图示例（基于 ECharts 渲染）
+> 雷达图示例（mermaid.js 渲染 radar-beta 图表）
 
 ```
            技术硬实力
@@ -120,7 +120,8 @@ HexaScope 的能力评估基于经典的**程序员六维模型**，六个顶点
 | **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
 | **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
 | **评分核心** | Bun (TypeScript) | 确定性六维评分算法 |
-| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（前端 mermaid.js 渲染） |
+| **雷达图生成** | Bun (Mermaid radar) | 生成 Mermaid radar 代码（报告产物 + 前端渲染） |
+| **前端仪表板** | NueJS (Nuekit 2.0 SPA) | GitHub Pages 静态托管，mermaid.js 渲染雷达图 |
 | **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
 | **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
 
@@ -140,9 +141,11 @@ zhaozg/HexaScope/
 │   ├── scoreCalculator.ts       # 六维评分
 │   ├── redflagDetector.ts       # 红牌检测
 │   └── generateRadar.ts         # 雷达图生成
-├── frontend/
-│   ├── src/                     # React 仪表板
-│   └── public/
+├── frontend/                   # NueJS 仪表板（Nuekit 2.0 SPA）
+│   ├── index.html               # SPA 入口（?user= 查询路由）
+│   ├── ui/entry.html            # 组件库（首页 + 用户仪表板）
+│   ├── server/                  # 开发路由（demo mock / raw 代理）
+│   └── css/                     # 设计令牌 + 组件样式
 ├── results/                     # 评估结果（自动提交）
 │   └── {username}/
 │       ├── report.json
@@ -155,6 +158,24 @@ zhaozg/HexaScope/
 ├── LICENSE                      # MIT
 └── README.md
 ```
+
+## 💻 本地开发（前端仪表板）
+
+前端基于 NueJS（Nuekit 2.0 SPA），依赖统一在根目录（`bun install` 即可）：
+
+```bash
+# 开发服务器（含演示数据，默认 http://localhost:4000）
+bun run frontend:dev
+
+# 构建静态产物 → frontend/.dist/（自动改写资源为相对路径，适配 GitHub Pages 子路径）
+bun run frontend:build
+
+# 预览构建产物
+bun run frontend:preview
+```
+
+> 开发环境访问 `/?user=demo` 可查看本地演示报告；其余用户名经 dev server 代理
+> 直读 `raw.githubusercontent.com` 上的真实报告（ADR-001）。
 
 ## 🤝 贡献指南
 

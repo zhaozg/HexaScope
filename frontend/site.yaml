@@ -1,0 +1,19 @@
+# HexaScope 前端站点配置（Nuekit 2.0 SPA）
+# 参考: https://nuejs.org/docs/configuration
+
+meta:
+  title: HexaScope — 开发者六维能力雷达图
+  description: 基于 GitHub 公开数据的开发者六维能力画像，开源、免费、GitHub 原生。
+
+# 开发服务器（server/ 目录下的路由处理器）
+server:
+  dir: server
+  reload: true
+
+# 浏览器运行时依赖映射（Nuekit 不打包裸导入，经 import map 从 CDN 解析）
+import_map:
+  mermaid: https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs
+
+# CSS @layer 顺序（与 css/base.css、css/components.css 对应）
+design:
+  layers: [base, components]
