@@ -1,0 +1,98 @@
+# HexaScope 六维能力评估工作流。
+#
+# 触发方式：
+#   1. installation: 用户安装 GitHub App 后自动评估安装者本人（隐私边界）
+#   2. workflow_dispatch: 手动评估，username 必须与触发者一致（仅自我评估）
+#   3. schedule: 每周增量更新 results/ 下已有用户（ADR-002）
+#
+# 数据流：cli.ts evaluate 采集公开数据 → 评分 → 红牌检测 → 结果提交到
+# results/<user>/report.json。前端（ADR-001）直连 raw.githubusercontent.com
+# 读取该文件，无需重新部署 Pages。
+
+name: HexaScope - 六维能力评估
+
+"on":
+  installation:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      username:
+        description: '要评估的 GitHub 用户名（仅限本人）'
+        required: true
+  schedule:
+    - cron: '0 0 * * 0' # 每周日 00:00 UTC
+
+concurrency:
+  group: analyze-${{ github.ref }}
+  cancel-in-progress: true
+
+# 权限最小化：仅需向 results/ 提交评估结果
+permissions:
+  contents: write
+
+jobs:
+  evaluate:
+    name: 六维能力评估
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1
+
+      - name: 缓存 Bun 依赖
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: 安装依赖（锁定版本，保证可复现）
+        run: bun install --frozen-lockfile
+
+      # 解析目标用户（隐私边界：仅允许自我评估）
+      - name: 解析目标用户
+        id: targets
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "installation" ]; then
+            # 安装 App 的账户本人
+            echo "users=${{ github.event.installation.account.login }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            USER="${{ github.event.inputs.username }}"
+            if [ "$USER" != "${{ github.actor }}" ]; then
+              echo "::error::隐私边界：仅支持评估自己（${{ github.actor }}），已拒绝评估 $USER"
+              exit 1
+            fi
+            echo "users=$USER" >> "$GITHUB_OUTPUT"
+          else
+            # schedule：增量更新已有评估报告的用户（ADR-002）
+            USERS=$(find results -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -u | tr '\n' ' ')
+            echo "users=$USERS" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 采集数据 + 六维评分 + 红牌检测
+        run: |
+          for user in ${{ steps.targets.outputs.users }}; do
+            echo "== 评估 $user =="
+            mkdir -p "results/$user"
+            bun scripts/cli.ts evaluate "$user" > "results/$user/report.json"
+          done
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 提交结果到仓库
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/
+          git diff --staged --quiet || {
+            git commit -m "chore(results): 更新六维能力评估报告"
+            git push
+          }

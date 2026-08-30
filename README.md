@@ -28,7 +28,20 @@
 
 ## 🚀 快速开始
 
-### 1️⃣ 安装 GitHub App
+### 0️⃣ 快速通道：手动触发评估（无需 App）
+
+> App 尚在注册中或不想安装？直接到仓库 **Actions** 页手动运行评估：
+> `Actions` → 左侧 <em>HexaScope - 六维能力评估</em> → `Run workflow` →
+> 输入**你自己的** GitHub 用户名 → `Run workflow`。约 1-2 分钟生成报告
+> （隐私边界：仅允许评估触发者本人）。
+
+### 1️⃣ 注册 GitHub App（仅首次，可选）
+
+点击下方按钮一键注册 `hexascope` App（GitHub App Manifest 流程）：
+
+[![注册 HexaScope App](https://img.shields.io/badge/Register-HexaScope_App-2ea44f?style=for-the-badge&logo=github)](https://zhaozg.github.io/HexaScope/app-manifest.html)
+
+### 2️⃣ 安装 GitHub App
 
 点击下方按钮，一键安装 HexaScope 到你的 GitHub 账户：
 
@@ -39,9 +52,9 @@
 - `repo` (只读) — 读取公开仓库
 - `read:org` — 读取组织信息（可选）
 
-### 2️⃣ 等待评估完成
+### 3️⃣ 等待评估完成
 
-安装完成后，GitHub Actions 将自动触发评估工作流，约 **1-2 分钟** 即可完成数据采集与评分计算。
+安装完成后，GitHub Actions 将自动触发评估工作流（`installation` 事件），约 **1-2 分钟** 即可完成数据采集与评分计算。
 
 你可以通过仓库的 **Actions** 标签页查看实时进度：
 
@@ -49,17 +62,17 @@
 https://github.com/zhaozg/HexaScope/actions
 ```
 
-### 3️⃣ 查看你的雷达图
+### 4️⃣ 查看你的雷达图
 
 评估完成后，通过以下任一方式查看报告：
 
 | 方式 | 地址/操作 |
 |------|---------|
-| 🌐 **GitHub Pages** | `https://zhaozg.github.io/HexaScope/[你的用户名]` |
+| 🌐 **GitHub Pages** | `https://zhaozg.github.io/HexaScope/?user=[你的用户名]` |
 | 🏷️ **README Badge** | 将 `![HexaScope](https://zhaozg.github.io/HexaScope/[用户名]/badge.svg)` 嵌入个人主页 |
 | 💬 **Copilot Chat** | 在 IDE 中输入 `@HexaScope 查看我的报告`（仅本人） |
 
-### 4️⃣ 自动更新
+### 5️⃣ 自动更新
 
 系统每周日自动重新评估，你的雷达图将随着贡献活动动态变化。
 
