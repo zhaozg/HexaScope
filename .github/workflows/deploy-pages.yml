@@ -1,5 +1,6 @@
-name: Deploy GitHub Pages
-
+# 部署适配：scripts/frontend-build-cli.ts 在 `nue build` 后把资源引用改写为
+# 相对路径，使站点可运行于 https://zhaozg.github.io/HexaScope/ 子路径。
+      - 'scripts/frontend-build-cli.ts'
 # 前端仪表板（Nuekit 2.0 SPA）构建后部署到 GitHub Pages 项目站点子路径。
 #
 # 触发：main 分支上影响前端产物、构建脚本或依赖的变更；可手动触发。
