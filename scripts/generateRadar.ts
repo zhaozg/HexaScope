@@ -1,104 +1,57 @@
 /**
- * HexaScope 雷达图 SVG 生成器。
+ * HexaScope 雷达图 Mermaid 生成器。
  *
- * 纯字符串模板实现，无外部二进制依赖（符合"禁止动态下载外部二进制"约束）。
- * 生成六边形网格 + 数据多边形 + 维度标签。
+ * 输出 Mermaid radar-beta 语法（https://mermaid.js.org/syntax/radar.html），
+ * 由 GitHub Pages 前端通过 mermaid.js 渲染，无需自研 SVG 绘制。
+ *
+ * 注意：Mermaid radar 的 ID 词法不接受中文，轴名/曲线名必须使用
+ * ASCII ID + ["中文标签"] 形式（已通过 @mermaid-js/parser 验证）。
  */
 
 import type { DimensionScore } from './types.js';
 
-/** 画布尺寸。 */
-export const CANVAS_SIZE = 500;
-/** 中心点坐标。 */
-export const CENTER = CANVAS_SIZE / 2;
-/** 最大半径。 */
-export const MAX_RADIUS = 200;
-/** 网格层数（含最外层）。 */
-export const GRID_LEVELS = 5;
-
-/** 顶点角度（从正上方开始，顺时针，弧度）。 */
-function vertexAngle(index: number): number {
-  return -Math.PI / 2 + (index * 2 * Math.PI) / 6;
-}
-
-/** 根据半径计算顶点坐标。 */
-function point(radius: number, index: number): [number, number] {
-  const angle = vertexAngle(index);
-  return [CENTER + radius * Math.cos(angle), CENTER + radius * Math.sin(angle)];
-}
+/** 雷达图值域最大值（评分 0-100）。 */
+export const RADAR_MAX = 100;
+/** 雷达图值域最小值。 */
+export const RADAR_MIN = 0;
+/** 经纬网同心层数。 */
+export const RADAR_TICKS = 5;
 
 const round = (value: number): number => Math.round(value * 100) / 100;
 
-/** 生成网格多边形（六边形）SVG 字符串。 */
-function buildGridPolygons(): string {
-  const parts: string[] = [];
-  for (let level = 1; level <= GRID_LEVELS; level += 1) {
-    const radius = (MAX_RADIUS * level) / GRID_LEVELS;
-    const pts = Array.from({ length: 6 }, (_, i) => point(radius, i).map(round).join(',')).join(
-      ' ',
-    );
-    parts.push(`<polygon points="${pts}" fill="none" stroke="#e2e8f0" stroke-width="1" />`);
-  }
-  for (let i = 0; i < 6; i += 1) {
-    const [x, y] = point(MAX_RADIUS, i).map(round);
-    parts.push(
-      `<line x1="${CENTER}" y1="${CENTER}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="1" />`,
-    );
-  }
-  return parts.join('\n  ');
-}
-
-/** 生成数据多边形 SVG 字符串。 */
-function buildDataPolygon(dimensions: DimensionScore[]): string {
-  const pts = dimensions
-    .map((d, i) =>
-      point((d.score / 100) * MAX_RADIUS, i)
-        .map(round)
-        .join(','),
-    )
-    .join(' ');
-  const dots = dimensions
-    .map((d, i) => {
-      const [x, y] = point((d.score / 100) * MAX_RADIUS, i).map(round);
-      return `<circle cx="${x}" cy="${y}" r="4" fill="#2563eb" />`;
-    })
-    .join('\n  ');
-  return [
-    `<polygon points="${pts}" fill="rgba(37, 99, 235, 0.35)" stroke="#2563eb" stroke-width="2" />`,
-    dots,
-  ].join('\n  ');
-}
-
-/** 生成维度标签 SVG 字符串。 */
-function buildLabels(dimensions: DimensionScore[]): string {
-  return dimensions
-    .map((d, i) => {
-      const [x, y] = point(MAX_RADIUS + 34, i).map(round);
-      return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#334155" font-family="sans-serif">${d.name} ${d.score}</text>`;
-    })
-    .join('\n  ');
-}
-
 /**
- * 生成完整雷达图 SVG。
- * @param dimensions 六维得分（顺序决定顶点顺序，必须恰好 6 个）
- * @returns SVG 字符串
+ * 生成 Mermaid radar 图表代码。
+ * @param dimensions 六维得分（必须恰好 6 个）
+ * @param username 被评估的 GitHub 用户名（用于标题）
+ * @param seriesName 数据系列名称（默认"综合能力"）
+ * @returns Mermaid radar 代码字符串
  */
-export function generateRadarSvg(dimensions: DimensionScore[]): string {
+export function generateRadarMermaid(
+  dimensions: DimensionScore[],
+  username?: string,
+  seriesName = '综合能力',
+): string {
   if (dimensions.length !== 6) {
     throw new Error(`雷达图需要恰好 6 个维度，当前 ${dimensions.length} 个`);
   }
+  const title = username ? `HexaScope 六维能力雷达图 - ${username}` : 'HexaScope 六维能力雷达图';
+  // 轴：ASCII ID + 中文标签（Mermaid ID 词法不接受中文）
+  const axis = dimensions.map((d, i) => `a${i + 1}["${d.name}"]`).join(', ');
+  const values = dimensions.map((d) => round(d.score)).join(', ');
   return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${CANVAS_SIZE}" height="${CANVAS_SIZE}" viewBox="0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}">`,
-    `  <rect width="${CANVAS_SIZE}" height="${CANVAS_SIZE}" fill="#ffffff" rx="12" />`,
-    `  ${buildGridPolygons()}`,
-    `  ${buildDataPolygon(dimensions)}`,
-    `  ${buildLabels(dimensions)}`,
-    `</svg>`,
+    'radar-beta',
+    `  title "${title}"`,
+    `  axis ${axis}`,
+    `  curve c1["${seriesName}"]{${values}}`,
+    `  max ${RADAR_MAX}`,
+    `  min ${RADAR_MIN}`,
+    '  graticule circle',
+    `  ticks ${RADAR_TICKS}`,
+    '  showLegend false',
   ].join('\n');
 }
 
-/** CLI 入口（从 stdin 读取维度数组或报告对象，输出 SVG）。 */
+/** CLI 入口（从 stdin 读取维度数组或报告对象，输出 Mermaid 代码）。 */
 async function main(): Promise<void> {
   const input = await new Promise<string>((resolve) => {
     let data = '';
@@ -108,9 +61,11 @@ async function main(): Promise<void> {
     });
     process.stdin.on('end', () => resolve(data));
   });
-  const parsed = JSON.parse(input) as DimensionScore[] | { dimensions?: DimensionScore[] };
+  const parsed = JSON.parse(input) as
+    DimensionScore[] | { dimensions?: DimensionScore[]; username?: string };
   const dimensions = Array.isArray(parsed) ? parsed : (parsed.dimensions ?? []);
-  process.stdout.write(generateRadarSvg(dimensions) + '\n');
+  const username = !Array.isArray(parsed) ? parsed.username : undefined;
+  process.stdout.write(generateRadarMermaid(dimensions, username) + '\n');
 }
 
 if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {
