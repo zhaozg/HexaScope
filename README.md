@@ -1,49 +1,181 @@
-# 六边形领域
+# HexaScope 🚀
 
-用六边形（雷达图）来刻画程序员的能力，是非常经典的“程序员能力六维模型”。
-这六个顶点并非孤立的技术点，而是支撑职业发展的核心骨架。我为你梳理了这六个维度的定义与精进方向：
+> 基于 GitHub 原生生态的开发者六维能力雷达图生成器
 
-**1. 技术硬实力（编程语言与框架）**
-这是六边形的“地基”，即把想法转化为代码的执行力。
-
-- 不仅仅是熟悉某门语言的语法，而是掌握其**生态**（如包管理、构建工具）和**底层原理**（如内存模型、GC机制）。
-- 精进方向：从“会用”到“用好”，追求代码的简洁、可读和高性能。
-
-**2. 架构与设计能力（系统设计与抽象）**
-这是决定代码能“活多久”的关键，体现在应对复杂业务的能力上。
-
-- 包含设计模式、SOLID原则、领域驱动设计（DDD）的运用，以及高并发、高可用系统的架构选型。
-- 精进方向：具备预测业务变化的**前瞻性**，能在需求和资源之间做出权衡，不过度设计也不短视。
-
-**3. 问题排查与调试能力（逻辑与根因分析）**
-优秀程序员与普通程序员的“分水岭”。不仅看报错信息，更关注**“为什么发生”**和**“如何避免”**。
-
-- 包含快速定位BUG、分析日志、性能剖析（Profiling）以及内存泄漏检测。
-- 精进方向：建立系统化的故障排查流程，善于从监控数据和异常堆栈中还原事故现场。
-
-**4. 工程化与效能意识（工具链与自动化）**
-决定团队“奔跑速度”的维度，旨在把重复劳动交给机器。
-
-- 涵盖版本控制（Git）策略、CI/CD（持续集成/交付）流水线、自动化测试（单元/集成测试）、容器化部署（Docker/K8s）。
-- 精进方向：对研发流程中的“痛点”极度敏感，信奉“Don't repeat yourself”，主动用脚本或工具提效。
-
-**5. 沟通与团队协作（透明化与共情）**
-打破“程序猿不善言辞”的刻板印象，这是连接技术与业务的桥梁。
-
-- 包括技术文档撰写、需求评审中的清晰表达、跨部门（产品/测试/运维）的沟通，以及高效的代码审查（Code Review）反馈。
-- 精进方向：将复杂技术术语转化为业务方听得懂的收益，在团队中保持信息同步，主动帮助新人成长。
-
-**6. 业务洞察与价值导向（产品思维）**
-决定“代码是否创造了真实价值”。技术是手段，解决业务痛点才是目的。
-
-- 理解需求的商业背景、用户画像，了解数据指标（如响应时间对转化率的影响）。
-- 精进方向：敢于对不合理的需求提出**“挑战”**，并给出更优雅的技术替代方案，从“接需求”转变为“共同创造”。
+[![GitHub App](https://img.shields.io/badge/GitHub_App-Install_Now-2ea44f?logo=github)](https://github.com/apps/hexascope)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-Automated-2088FF?logo=github-actions)](.github/workflows/analyze.yml)
+[![Copilot Extension](https://img.shields.io/badge/Copilot-Extension-8957E5?logo=githubcopilot)](docs/COPILOT.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ---
 
-## **六边形的平衡之道：**
+## 📖 什么是 HexaScope？
 
-这个六边形最理想的状态是**面积最大且均匀**。
-如果过于偏科（如只重技术而忽视沟通），会导致“效能瓶颈”；如果只懂业务却缺乏架构能力，则会积攒大量技术债务。
+**HexaScope** 是一个深度集成 GitHub 原生能力的开源开发者评估生态。
 
-你可以把它当作一面镜子，定期给自己打分（1-10分），找到最短的那条边，那就是你下一阶段要重点突破的方向。
+只需一键安装 HexaScope GitHub App，系统便会自动通过 GitHub Actions 拉取你的公开数据，从**六个核心维度**生成能力雷达图，并通过 GitHub Pages 公开展示。你还可以在 IDE 中通过 GitHub Copilot 自然语言查询任何人的评估结果——**这一切完全免费**。
+
+## ✨ 核心特性
+
+- **🤖 全自动评估**：安装 GitHub App 即触发首次评估，此后每周自动更新，始终保持最新
+- **🧠 Copilot 自然语言交互**：在 IDE 中通过 `@HexaScope 分析 @用户名` 直接查询雷达图
+- **📊 六维能力模型**：技术硬实力 · 架构设计 · 问题排查 · 工程化效能 · 沟通协作 · 业务洞察
+- **🛡️ 反作弊检测**：内置 10 项红牌指标（自合并比例、Fork 囤积、AI 代码特征、Bot 行为等），过滤虚假繁荣
+- **💰 完全免费**：基于 GitHub Actions 免费额度运行，无需付费
+- **📦 开源可自托管**：MIT 协议，企业可私有化部署
+
+## 🚀 快速开始
+
+### 1️⃣ 安装 GitHub App
+
+点击下方按钮，一键安装 HexaScope 到你的 GitHub 账户：
+
+[![安装 HexaScope](https://img.shields.io/badge/🚀_Install_HexaScope-2ea44f?style=for-the-badge&logo=github)](https://github.com/apps/hexascope)
+
+安装时授予以下只读权限：
+- `read:user` — 读取基本信息
+- `repo` (只读) — 读取公开仓库
+- `read:org` — 读取组织信息（可选）
+
+### 2️⃣ 等待评估完成
+
+安装完成后，GitHub Actions 将自动触发评估工作流，约 **1-2 分钟** 即可完成数据采集与评分计算。
+
+你可以通过仓库的 **Actions** 标签页查看实时进度：
+
+```
+https://github.com/zhaozg/HexaScope/actions
+```
+
+### 3️⃣ 查看你的雷达图
+
+评估完成后，通过以下任一方式查看报告：
+
+| 方式 | 地址/操作 |
+|------|---------|
+| 🌐 **GitHub Pages** | `https://zhaozg.github.io/HexaScope/[你的用户名]` |
+| 🏷️ **README Badge** | 将 `![HexaScope](https://zhaozg.github.io/HexaScope/[用户名]/badge.svg)` 嵌入个人主页 |
+| 💬 **Copilot Chat** | 在 IDE 中输入 `@HexaScope 分析 @用户名` |
+
+### 4️⃣ 自动更新
+
+系统每周日自动重新评估，你的雷达图将随着贡献活动动态变化。
+
+## 📸 效果预览
+
+> 雷达图示例（基于 ECharts 渲染）
+
+```
+           技术硬实力
+              ▲
+             / \
+            /   \
+           /     \
+工程化效能│       │ 架构设计
+          │       │
+          │       │
+          │       │
+ 沟通协作 │       │ 问题排查
+           \     /
+            \   /
+             \ /
+              ▼
+          业务洞察
+```
+
+> 实际页面为交互式雷达图，支持悬停查看分数明细。（效果图待补充）
+
+## 🧩 六维能力模型（设计哲学）
+
+HexaScope 的能力评估基于经典的**程序员六维模型**，六个顶点共同构成完整的技术人画像：
+
+### 1. 技术硬实力（编程语言与框架）
+把想法转化为代码的执行力。不仅熟悉语法，更掌握生态与底层原理（内存模型、GC机制）。从“会用”到“用好”。
+
+### 2. 架构与设计能力（系统设计与抽象）
+决定代码能“活多久”的关键。涵盖设计模式、SOLID 原则、DDD 以及高并发/高可用架构选型。具备业务前瞻性，在需求与资源间做出权衡。
+
+### 3. 问题排查与调试能力（逻辑与根因分析）
+优秀程序员与普通程序员的“分水岭”。不仅看报错信息，更追问“为什么发生”和“如何避免”。涵盖日志分析、性能剖析（Profiling）、内存泄漏检测。
+
+### 4. 工程化与效能意识（工具链与自动化）
+决定团队“奔跑速度”的维度。涵盖 CI/CD 流水线、自动化测试、容器化部署（Docker/K8s）。信奉“Don't repeat yourself”，主动用工具消灭重复劳动。
+
+### 5. 沟通与团队协作（透明化与共情）
+连接技术与业务的桥梁。涵盖技术文档、需求评审表达、跨部门沟通、Code Review 反馈。将复杂术语转化为业务方听得懂的收益。
+
+### 6. 业务洞察与价值导向（产品思维）
+决定“代码是否创造了真实价值”。理解需求的商业背景与用户画像，敢于对不合理需求提出挑战，从“接需求”转变为“共同创造”。
+
+---
+
+**平衡之道**：最理想的状态是六边形**面积最大且均匀**。找到最短的那条边，那就是你下一阶段要重点突破的方向。
+
+## 🛠️ 技术栈
+
+| 组件 | 技术选型 | 说明 |
+|------|---------|------|
+| **GitHub App** | GitHub App Framework | OAuth 授权、Webhook 处理 |
+| **自动化引擎** | GitHub Actions | 定时采集、计算、提交 |
+| **评分核心** | Python + NumPy | 确定性六维评分算法 |
+| **雷达图生成** | Python (matplotlib) / Node.js (Sharp) | 生成 SVG/PNG 雷达图 |
+| **前端仪表板** | React + ECharts | GitHub Pages 托管 |
+| **Copilot 集成** | Copilot Extensions API | 自然语言交互 |
+| **数据缓存** | GitHub Actions Cache | 减少 API 调用次数 |
+
+## 📁 项目结构
+
+```
+zhaozg/HexaScope/
+├── .github/
+│   ├── workflows/
+│   │   ├── analyze.yml          # 核心评估工作流
+│   │   └── deploy-pages.yml     # Pages 部署
+│   └── ISSUE_TEMPLATE/
+│       └── evaluate.md          # 用户手动触发模板
+├── scripts/
+│   ├── fetch_user_data.py       # 数据采集
+│   ├── score_calculator.py      # 六维评分
+│   ├── redflag_detector.py      # 红牌检测
+│   └── generate_radar.py        # 雷达图生成
+├── frontend/
+│   ├── src/                     # React 仪表板
+│   └── public/
+├── results/                     # 评估结果（自动提交）
+│   └── {username}/
+│       ├── report.json
+│       ├── radar.svg
+│       └── badge.svg
+├── docs/
+│   ├── API.md                   # Copilot Extension API
+│   └── USER_GUIDE.md
+├── DESIGN.md                    # 详细设计文档
+├── LICENSE                      # MIT
+└── README.md
+```
+
+## 🤝 贡献指南
+
+欢迎贡献代码、提交 Issue 或提出新功能建议！
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/amazing`)
+3. 提交你的修改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing`)
+5. 打开一个 Pull Request
+
+详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 📄 开源协议
+
+本项目采用 [MIT License](LICENSE) 开源协议，可自由使用、修改、分发，包括商业用途。
+
+## 💬 社区交流
+
+- **Issues**：报告 Bug 或提出建议 → [提交 Issue](https://github.com/zhaozg/HexaScope/issues)
+- **Discussions**：技术交流与使用反馈 → [加入讨论](https://github.com/zhaozg/HexaScope/discussions)
+
+---
+
+**Star 🌟 本项目**，让更多开发者发现自己的成长方向！
