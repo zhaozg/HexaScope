@@ -1,9 +1,13 @@
 # HexaScope 六维能力评估工作流。
 #
-# 触发方式：
-#   1. installation: 用户安装 GitHub App 后自动评估安装者本人（隐私边界）
-#   2. workflow_dispatch: 手动评估，username 必须与触发者一致（仅自我评估）
+# 触发方式（GitHub Actions 支持的事件）：
+#   1. workflow_dispatch: 手动评估，username 必须与触发者一致（仅自我评估）
+#   2. issue_comment: 在本仓库 Issue 评论 `/evaluate <用户名>`（仅限本人），
+#      安装 App 后按 README 指引评论一次即可完成首次评估
 #   3. schedule: 每周增量更新 results/ 下已有用户（ADR-002）
+#
+# 注意：GitHub Actions 不支持 installation 事件，安装 App 无法直接触发
+# 工作流；安装引导通过 issue_comment / workflow_dispatch 完成（见 README）。
 #
 # 数据流：cli.ts evaluate 采集公开数据 → 评分 → 红牌检测 → 结果提交到
 # results/<user>/report.json。前端（ADR-001）直连 raw.githubusercontent.com
@@ -12,7 +16,7 @@
 name: HexaScope - 六维能力评估
 
 "on":
-  installation:
+  issue_comment:
     types: [created]
   workflow_dispatch:
     inputs:
@@ -61,9 +65,19 @@ jobs:
         id: targets
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "installation" ]; then
-            # 安装 App 的账户本人
-            echo "users=${{ github.event.installation.account.login }}" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            # 评论格式：/evaluate <用户名>，仅允许评论作者评估自己
+            USER=$(echo "${{ github.event.comment.body }}" | sed -n 's#^/evaluate[[:space:]]*##p' | head -1 | xargs)
+            AUTHOR="${{ github.event.comment.user.login }}"
+            if [ -z "$USER" ]; then
+              echo "::error::请在评论中使用格式：/evaluate <你的用户名>"
+              exit 1
+            fi
+            if [ "$USER" != "$AUTHOR" ]; then
+              echo "::error::隐私边界：仅支持评估自己（$AUTHOR），已拒绝评估 $USER"
+              exit 1
+            fi
+            echo "users=$USER" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             USER="${{ github.event.inputs.username }}"
             if [ "$USER" != "${{ github.actor }}" ]; then

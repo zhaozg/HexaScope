@@ -59,7 +59,7 @@ HexaScope 以 **GitHub App** 形式发布，用户安装后即可授权读取公
 | `repo` (只读) | 读取用户的公开仓库代码与元数据 |
 | `read:org` | 读取用户所属组织信息（可选） |
 
-**安装流程**：用户访问 HexaScope 的 GitHub App 安装页面 → 点击 "Install" 一键安装 → 自动触发 Actions 工作流生成评估报告。
+**安装流程**：用户访问 HexaScope 的 GitHub App 安装页面 → 点击 "Install" 一键安装 → 按 README 指引在本仓库 Issue 评论 `/evaluate <用户名>` 或手动触发评估（GitHub Actions 不支持 `installation` 事件直接触发工作流）。
 
 ### 3.2 GitHub Actions（自动化数据采集与计算）
 
@@ -71,10 +71,10 @@ HexaScope 以 **GitHub App** 形式发布，用户安装后即可授权读取公
 name: HexaScope - 六维能力评估
 
 on:
-  # 1. 用户安装 App 后触发
-  installation:
+  # 1. 用户主动请求（通过 HexaScope 仓库的 Issue 评论 /evaluate <用户名> 触发，仅限本人）
+  issue_comment:
     types: [created]
-  # 2. 用户主动请求（通过 HexaScope 仓库的 Issue 评论触发）
+  # 2. 用户主动请求（手动触发，仅限本人）
   issue_comment:
     types: [created]
   # 3. 定时增量更新（每周一次，仅更新活跃用户）
@@ -377,7 +377,7 @@ return min(max(score, 0), 100)
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│  Step 2: GitHub App 自动触发 Actions 工作流                     │
+│  Step 2: 用户评论 /evaluate <用户名> 或手动触发评估            │
 │          → 采集用户公开数据 → 六维评分 → 生成雷达图             │
 │          → 提交结果到 zhaozg/HexaScope/results/                 │
 └─────────────────────────────────────────────────────────────────┘
