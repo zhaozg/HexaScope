@@ -104,28 +104,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 采集用户数据
       - name: 安装依赖
         run: npm ci
 
-      - name: 采集用户数据
+      - name: 采集数据 + 六维评分 + 红牌检测
         run: |
-          node scripts/fetchUserData.mjs ${{ github.actor }}
+          mkdir -p results/${{ github.actor }}
+          npx tsx scripts/cli.ts evaluate "${{ github.actor }}" > results/${{ github.actor }}/report.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 六维评分计算
+      - name: 生成雷达图 SVG
         run: |
-          node scripts/scoreCalculator.mjs
-
-      - name: 红牌检测
-        run: |
-          node scripts/redflagDetector.mjs
-
-      - name: 生成雷达图
-        run: |
-          node scripts/generateRadar.mjs
-
+          npx tsx scripts/generateRadar.ts < results/${{ github.actor }}/report.json > results/${{ github.actor }}/radar.svg
       - name: 提交结果到仓库
         run: |
           git config user.name "HexaScope Bot"

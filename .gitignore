@@ -1,0 +1,17 @@
+# 依赖与构建产物
+node_modules/
+dist/
+coverage/
+
+# 本地环境
+.env
+.env.local
+*.local
+
+# 评估结果（仅由 Actions 自动提交，本地不追踪）
+results/
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store

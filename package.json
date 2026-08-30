@@ -1,0 +1,37 @@
+{
+  "name": "hexascope",
+  "version": "0.1.0",
+  "description": "基于 GitHub 原生生态的开发者六维能力雷达图生成器",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  },
+  "scripts": {
+    "fetch": "tsx scripts/fetchUserData.ts",
+    "score": "tsx scripts/scoreCalculator.ts",
+    "redflag": "tsx scripts/redflagDetector.ts",
+    "radar": "tsx scripts/generateRadar.ts",
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint scripts tests",
+    "format": "prettier --write \"scripts/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "@vitest/coverage-v8": "^2.1.3",
+    "eslint": "^9.12.0",
+    "msw": "^2.4.9",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.8.1",
+    "vitest": "^2.1.3"
+  }
+}
