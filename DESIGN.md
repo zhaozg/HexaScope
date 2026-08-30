@@ -492,9 +492,9 @@ zhaozg/HexaScope/
 │   ├── site.yaml                # Nuekit 配置（import_map: mermaid CDN）
 │   ├── ui/
 │   │   └── entry.html           # 组件库：home（首页）、dashboard（用户仪表板）
+│   ├── demo-report.json         # 内置演示报告（单一数据源，构建时复制到 .dist/）
 │   ├── server/
-│   │   ├── index.js             # 开发路由：/api/report/:username（demo mock / raw 代理）
-│   │   └── demo.json            # 本地演示报告
+│   │   └── index.js             # 开发路由：/api/report/:username（demo mock / raw 代理）
 │   └── css/
 │       ├── base.css             # 设计令牌 + 基础样式（深色主题）
 │       └── components.css       # 组件样式（面板/雷达/得分条/红牌）
@@ -561,7 +561,6 @@ zhaozg/HexaScope/
 - **技术栈统一**：Nuekit 2.0 与项目同为 Bun 原生工具链，安装与构建零 Node 依赖，符合"GitHub First / 零成本运营"原则
 - **内容优先、极简**：组件即标准 HTML（`.html` 文件），无构建期 JSX/TSX 编译心智负担，样式采用原生 CSS 设计令牌
 - **SPA 路由契合静态托管**：查询参数路由（`?user=`）与 GitHub Pages 子路径部署天然兼容，无需 history fallback（`404.html`）技巧；路径路由 `/:id` 在子路径下会因前缀错位而失效
-- **雷达图渲染**：`scripts/generateRadar.ts` 产出的 radar-beta 代码由 mermaid.js（CDN import map 引入）直接渲染；仪表板内图表代码客户端确定性生成（与生成器算法一致），保证与得分卡片数据始终一致
-- **数据读取不变**：继续遵循 ADR-001，生产环境直连 `raw.githubusercontent.com` 读取 `results/` 报告，开发环境经 Nuekit dev server 代理（`demo` 用户走本地 mock）
+- **数据读取**：遵循 ADR-001，生产环境直连 `raw.githubusercontent.com` 读取 `results/` 报告，开发环境经 Nuekit dev server 代理（`demo` 用户走本地 mock）；生产环境 `demo` 用户回退到站点内置演示报告（`./demo-report.json`，GitHub Pages 离线可用，零后端依赖）
 
 **代价**：Nuekit 2.0 处于 beta 阶段（v2.0.0-beta.2），版本迭代较快；前端组件为 HTML 内联脚本，无法纳入 bun test 单元测试，依赖构建期验证。

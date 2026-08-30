@@ -145,6 +145,7 @@ zhaozg/HexaScope/
 ├── frontend/                   # NueJS 仪表板（Nuekit 2.0 SPA）
 │   ├── index.html               # SPA 入口（?user= 查询路由）
 │   ├── ui/entry.html            # 组件库（首页 + 用户仪表板）
+│   ├── demo-report.json         # 内置演示报告（构建时复制到 .dist/，生产离线可用）
 │   ├── server/                  # 开发路由（demo mock / raw 代理）
 │   └── css/                     # 设计令牌 + 组件样式
 ├── results/                     # 评估结果（自动提交）
@@ -176,7 +177,8 @@ bun run frontend:preview
 ```
 
 > 开发环境访问 `/?user=demo` 可查看本地演示报告；其余用户名经 dev server 代理
-> 直读 `raw.githubusercontent.com` 上的真实报告（ADR-001）。
+> 直读 `raw.githubusercontent.com` 上的真实报告（ADR-001）。生产环境
+> `?user=demo` 直接读取站点内置演示报告（`./demo-report.json`），无需后端。
 
 ## 🚀 持续集成与部署（CI/CD）
 

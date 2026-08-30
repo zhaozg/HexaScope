@@ -2,14 +2,15 @@
   HexaScope 前端开发服务器路由（仅 nue dev 使用）。
 
   生产环境（GitHub Pages 静态托管）不经过此服务器：
-  前端组件直接调用 raw.githubusercontent.com 读取 results/ 下的评估报告（ADR-001）。
+  前端组件直接调用 raw.githubusercontent.com 读取 results/ 下的评估报告（ADR-001），
+  demo 用户则回退到站点内置演示报告（frontend/demo-report.json，构建时复制到 .dist/）。
 
   - GET /api/report/:username
-    开发环境数据源：username == 'demo' 返回本地演示数据（server/demo.json），
+    开发环境数据源：username == 'demo' 返回本地演示数据（demo-report.json），
     其余用户名代理转发 raw.githubusercontent.com 上的真实评估报告。
 */
 
-import demoReport from './demo.json'
+import demoReport from '../demo-report.json'
 
 const RAW_BASE = 'https://raw.githubusercontent.com/zhaozg/HexaScope/main/results'
 

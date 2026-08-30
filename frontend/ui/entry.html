@@ -7,11 +7,9 @@
     - home      首页：品牌 + 用户名查询表单
     - dashboard 用户仪表板：综合得分、雷达图、六维卡片、红牌列表、免责声明
 
-  注意（Nuekit 约束）：import 必须放在本文件顶层 <script>（模块作用域），
-  组件 <article> 内的 <script> 只允许定义方法，通过闭包引用顶层导入。
-
-  数据流（ADR-001）：开发环境走 /api/report/:username（本地 mock / raw 代理），
-  生产环境直连 raw.githubusercontent.com 读取 results/ 下的评估报告。
+  数据流（ADR-001）：开发环境走 /api/report/:username（本地 mock / raw 代理）；
+  生产环境直连 raw.githubusercontent.com 读取 results/ 下的评估报告，
+  demo 用户回退到站点内置演示报告（./demo-report.json）。
 -->
 
 <!-- ===================== 模块级依赖与共享助手 ===================== -->
@@ -25,10 +23,18 @@
   const DEV = ['localhost', '127.0.0.1'].includes(location.hostname)
 
   // 加载评估报告：开发环境先试本地代理（含 demo 演示数据），失败回退 raw；生产直连 raw
+  // 加载评估报告：
+  // - demo 用户：生产环境回退到站点内置演示报告（./demo-report.json，构建时复制到 .dist/，
+  //   GitHub Pages 离线可用）；开发环境先试本地代理（含 demo mock）
+  // - 其余用户：开发环境先试本地代理，失败回退 raw；生产直连 raw（ADR-001）
   async function loadReport(username) {
-    const urls = DEV
-      ? [`/api/report/${username}`, `${RAW_BASE}/${username}/report.json`]
-      : [`${RAW_BASE}/${username}/report.json`]
+    const urls = []
+    if (DEV) urls.push(`/api/report/${username}`)
+    if (username === 'demo') {
+      urls.push('./demo-report.json')
+    } else {
+      urls.push(`${RAW_BASE}/${username}/report.json`)
+    }
     for (const url of urls) {
       try {
         const res = await fetch(url)
@@ -37,7 +43,9 @@
         /* 尝试下一个候选 URL */
       }
     }
-    throw new Error(`results/${username}/report.json 不存在或尚未生成`)
+    throw new Error(username === 'demo'
+      ? '内置演示报告加载失败'
+      : `results/${username}/report.json 不存在或尚未生成`)
   }
 
   // 客户端雷达图代码生成（与 scripts/generateRadar.ts 的 generateRadarMermaid 保持一致的确定性算法）
