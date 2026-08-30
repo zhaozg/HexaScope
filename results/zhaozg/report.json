@@ -1,0 +1,106 @@
+{
+  "username": "zhaozg",
+  "generatedAt": "2026-08-30T06:59:42.454Z",
+  "dimensions": [
+    {
+      "key": "technical",
+      "name": "技术硬实力",
+      "score": 69.76949772301239,
+      "weight": 0.25
+    },
+    {
+      "key": "architecture",
+      "name": "架构与设计",
+      "score": 0,
+      "weight": 0.2
+    },
+    {
+      "key": "debugging",
+      "name": "问题排查",
+      "score": 40,
+      "weight": 0.15
+    },
+    {
+      "key": "engineering",
+      "name": "工程化效能",
+      "score": 0,
+      "weight": 0.15
+    },
+    {
+      "key": "collaboration",
+      "name": "沟通协作",
+      "score": 0,
+      "weight": 0.15
+    },
+    {
+      "key": "business",
+      "name": "业务洞察",
+      "score": 0,
+      "weight": 0.1
+    }
+  ],
+  "redFlags": [
+    {
+      "id": 1,
+      "name": "PR 自合并比例过高",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 2,
+      "name": "Fork 囤积",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 3,
+      "name": "AI 生成代码特征",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 4,
+      "name": "提交时间分布异常（Bot 模式）",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 5,
+      "name": "Star/Follow 比例失调",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 6,
+      "name": "空仓库过多",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 7,
+      "name": "批量仓库同名（模板克隆）",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 8,
+      "name": "无意义提交信息",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 9,
+      "name": "Issue 自问自答",
+      "detected": false,
+      "detail": ""
+    },
+    {
+      "id": 10,
+      "name": "贡献图过于均匀",
+      "detected": true,
+      "detail": "每日提交量方差 0.00（阈值 <0.5）"
+    }
+  ],
+  "overallScore": 23.442374430753098,
+  "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。"
+}
