@@ -8,7 +8,7 @@
  * ASCII ID + ["中文标签"] 形式（已通过 @mermaid-js/parser 验证）。
  */
 
-import type { DimensionScore } from './types.js';
+import type { CliReadStream, CliWriteStream, DimensionScore } from './types.js';
 
 /** 雷达图值域最大值（评分 0-100）。 */
 export const RADAR_MAX = 100;
@@ -50,22 +50,30 @@ export function generateRadarMermaid(
     '  showLegend false',
   ].join('\n');
 }
-
-/** CLI 入口（从 stdin 读取维度数组或报告对象，输出 Mermaid 代码）。 */
-async function main(): Promise<void> {
+/**
+ * CLI 入口（从 stdin 读取维度数组或报告对象，输出 Mermaid 代码）。
+ *
+ * stdin/stdout 可注入（便于测试进程内直接驱动，覆盖率统计生效）。
+ * @param stdin 输入流（默认 process.stdin）
+ * @param stdout 输出流（默认 process.stdout）
+ */
+export async function main(
+  stdin: CliReadStream = process.stdin,
+  stdout: CliWriteStream = process.stdout,
+): Promise<void> {
   const input = await new Promise<string>((resolve) => {
     let data = '';
-    process.stdin.setEncoding('utf8');
-    process.stdin.on('data', (chunk: string) => {
+    stdin.setEncoding('utf8');
+    stdin.on('data', (chunk: string) => {
       data += chunk;
     });
-    process.stdin.on('end', () => resolve(data));
+    stdin.on('end', () => resolve(data));
   });
   const parsed = JSON.parse(input) as
     DimensionScore[] | { dimensions?: DimensionScore[]; username?: string };
   const dimensions = Array.isArray(parsed) ? parsed : (parsed.dimensions ?? []);
   const username = !Array.isArray(parsed) ? parsed.username : undefined;
-  process.stdout.write(generateRadarMermaid(dimensions, username) + '\n');
+  stdout.write(generateRadarMermaid(dimensions, username) + '\n');
 }
 
 if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {

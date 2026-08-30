@@ -120,3 +120,14 @@ export interface EvaluationReport {
   /** 自我评估免责声明。 */
   disclaimer: string;
 }
+
+/** 最小可读流接口（CLI 输入，测试对象可轻松满足）。 */
+export interface CliReadStream {
+  setEncoding(encoding?: string): void;
+  on(event: string, listener: (chunk: string) => void): unknown;
+}
+
+/** 最小可写流接口（CLI 输出，测试对象可轻松满足）。 */
+export interface CliWriteStream {
+  write(chunk: string): unknown;
+}

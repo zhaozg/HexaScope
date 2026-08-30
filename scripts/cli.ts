@@ -6,12 +6,13 @@
  *   node scripts/cli.ts score <json>          # 仅评分（读 JSON 输入）
  *
  * 生产环境（GitHub Actions）通过 GITHUB_TOKEN 环境变量注入令牌。
+ * HEXASCOPE_API_BASE 环境变量可覆盖 GitHub API 基础地址（测试/自托管场景）。
  */
 
 import { Octokit } from '@octokit/rest';
 import { calculateDimensions, calculateOverallScore } from './scoreCalculator.ts';
 import { detectRedFlags } from './redflagDetector.ts';
-import type { EvaluationInput, EvaluationReport } from './types.ts';
+import type { CliWriteStream, EvaluationInput, EvaluationReport } from './types.ts';
 
 /** 自我评估免责声明（隐私边界要求）。 */
 export const DISCLAIMER =
@@ -35,11 +36,6 @@ export function buildReport(
   };
 }
 
-/**
- * 从 GitHub API 采集用户数据并构造评估输入。
- * @param username GitHub 用户名
- * @param token GitHub Token（可选，公开数据可不传）
- */
 /**
  * 从 GitHub API 采集用户数据并构造评估输入。
  * @param username GitHub 用户名
@@ -119,32 +115,51 @@ export async function fetchEvaluationInput(
   };
 }
 
-/** CLI 入口。 */
-async function main(): Promise<void> {
-  const [command, arg] = process.argv.slice(2);
+/**
+ * CLI 入口。
+ *
+ * stdout/stderr/fetchInput 可注入（便于测试进程内直接驱动，覆盖率统计生效）。
+ * @param argv 命令行参数（默认 process.argv.slice(2)）
+ * @param deps 依赖注入：stdout/stderr 输出流、fetchInput 数据采集函数
+ * @returns 进程退出码（0 成功，1 用法错误）
+ */
+export async function main(
+  argv: string[] = process.argv.slice(2),
+  deps: {
+    stdout?: CliWriteStream;
+    stderr?: CliWriteStream;
+    fetchInput?: typeof fetchEvaluationInput;
+  } = {},
+): Promise<number> {
+  const stdout = deps.stdout ?? process.stdout;
+  const stderr = deps.stderr ?? process.stderr;
+  const fetchInput = deps.fetchInput ?? fetchEvaluationInput;
+  const [command, arg] = argv;
 
   if (command === 'evaluate' && arg) {
     const token = process.env.GITHUB_TOKEN;
-    const input = await fetchEvaluationInput(arg, token);
+    const baseUrl = process.env.HEXASCOPE_API_BASE;
+    const input = await fetchInput(arg, token, baseUrl);
     const report = buildReport(input);
-    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
-    return;
+    stdout.write(JSON.stringify(report, null, 2) + '\n');
+    return 0;
   }
 
   if (command === 'score' && arg) {
     const input = JSON.parse(arg) as EvaluationInput;
     const report = buildReport(input);
-    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
-    return;
+    stdout.write(JSON.stringify(report, null, 2) + '\n');
+    return 0;
   }
 
-  process.stderr.write(
+  stderr.write(
     '用法: node scripts/cli.ts evaluate <username> | node scripts/cli.ts score <json>\n',
   );
-  process.exitCode = 1;
+  return 1;
 }
 
 // 仅在直接执行时运行（被 import 时不触发）
 if (process.argv[1] && import.meta.url === new URL(process.argv[1], 'file://').href) {
-  void main();
+  const code = await main();
+  if (code !== 0) process.exitCode = code;
 }

@@ -52,6 +52,10 @@ jobs:
             node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: |
+      - name: 配置 Pages（未启用时自动启用，保证部署可自愈）
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
             ${{ runner.os }}-bun-
 
       - name: 安装依赖（锁定版本，保证可复现）
