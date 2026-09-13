@@ -123,7 +123,10 @@ https://github.com/zhaozg/HexaScope/actions
           业务洞察
 ```
 
-> 实际页面为交互式雷达图，支持悬停查看分数明细。（效果图待补充）
+![HexaScope 演示报告](frontend/images/demo-report.png)
+
+> 上图为演示报告（`?user=demo`）的真实截图：综合得分、六维能力雷达图与数据覆盖度。
+> 实际页面为交互式雷达图，可展开每个维度的「评分依据」证据链。
 
 ## 🧩 六维能力模型（设计哲学）
 
@@ -183,6 +186,7 @@ zhaozg/HexaScope/
 ├── frontend/                   # NueJS 仪表板（Nuekit 2.0 SPA）
 │   ├── index.html               # SPA 入口（?user= 查询路由）
 │   ├── ui/entry.html            # 组件库（首页 + 用户仪表板）
+│   ├── images/                 # 首页展示用截图（构建时复制到 .dist/）
 │   ├── demo-report.json         # 内置演示报告（构建时复制到 .dist/，生产离线可用）
 │   ├── server/                  # 开发路由（demo mock / raw 代理）
 │   └── css/                     # 设计令牌 + 组件样式
@@ -212,6 +216,9 @@ bun run frontend:build
 
 # 预览构建产物
 bun run frontend:preview
+
+# 校验内置演示报告与当前报告 schema / 评分算法一致（CI 门禁同款检查）
+bun run validate:demo
 ```
 
 > 开发环境访问 `/?user=demo` 可查看本地演示报告；其余用户名经 dev server 代理
@@ -224,7 +231,7 @@ bun run frontend:preview
 
 | 工作流 | 触发时机 | 作用 |
 |--------|----------|------|
-| `ci.yml` | main 推送 / 每个 PR | 单元测试（覆盖率 ≥ 85%）、TypeScript 类型检查、ESLint、Prettier、前端构建验证 |
+| `ci.yml` | main 推送 / 每个 PR | 单元测试（覆盖率 ≥ 85%）、演示报告 schema 校验、TypeScript 类型检查、ESLint、Prettier、前端构建验证 |
 | `deploy-pages.yml` | main 推送（frontend/ 变更） | 构建 Nuekit SPA 并部署到 GitHub Pages |
 
 **Pages 部署前提**（一次性配置）：
