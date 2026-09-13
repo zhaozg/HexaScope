@@ -291,3 +291,14 @@
     margin-top: 1.5rem;
   }
 }
+
+/* mermaid 渲染库不可达时的雷达图降级提示 */
+.radar-fallback {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border: 1px dashed var(--color-border, #3a3f4b);
+  border-radius: 8px;
+  color: var(--color-text-muted, #9aa4b2);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}

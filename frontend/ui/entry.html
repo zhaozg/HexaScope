@@ -16,7 +16,6 @@
 <!-- ===================== 模块级依赖与共享助手 ===================== -->
 <script>
   import { state } from 'state'
-  import mermaid from 'mermaid'
 
   // 生产数据源（ADR-001）：raw.githubusercontent.com 直读
   const RAW_BASE = 'https://raw.githubusercontent.com/zhaozg/HexaScope/main/results'
@@ -237,14 +236,23 @@
 
   <script>
     // 报告数据就绪后渲染 mermaid 雷达图
+    // mermaid 采用动态导入：CDN 不可达时仅雷达图降级，报告其余部分照常展示
     async renderRadar() {
       const el = this.root?.querySelector('#radar')
       if (!el || !this.report) return
-      mermaid.initialize({ startOnLoad: false, theme: 'dark' })
-      const code = buildRadarMermaid(this.report.dimensions, this.report.username)
-      const id = 'radar-' + Math.random().toString(36).slice(2)
-      const { svg } = await mermaid.render(id, code)
-      el.innerHTML = svg
+      try {
+        const { default: mermaid } = await import('mermaid')
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' })
+        const code = buildRadarMermaid(this.report.dimensions, this.report.username)
+        const id = 'radar-' + Math.random().toString(36).slice(2)
+        const { svg } = await mermaid.render(id, code)
+        el.innerHTML = svg
+      } catch {
+        // 渲染库加载失败不应影响文本报告：给出可读降级提示
+        el.innerHTML =
+          '<p class="radar-fallback">雷达图渲染库（mermaid）加载失败，' +
+          '请检查网络后刷新；下方六维得分不受影响。</p>'
+      }
     }
 
     // 组件挂载：根据传入的 user 加载报告
