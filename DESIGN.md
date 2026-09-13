@@ -609,6 +609,24 @@ zhaozg/HexaScope/
 
 **代价**：Nuekit 2.0 处于 beta 阶段（v2.0.0-beta.2），版本迭代较快；前端组件为 HTML 内联脚本，无法纳入 bun test 单元测试，依赖构建期验证。
 
+#### 构建期必须改写的两处产物（否则线上整站白屏）
+
+`nue build` 的输出不能直接部署，`scripts/frontend-build.ts` 负责两项改写，二者都曾导致线上事故：
+
+| 产物 | 问题 | 改写 | 不修复的后果 |
+|------|------|------|-------------|
+| `index.html` 的 import map 位置 | Nuekit 把 import map 放在 `<script type="module">` **之后** | `hoistImportMap()` 提前到首个 module 脚本之前 | 按 HTML 规范，import map 必须在任何 module 脚本开始加载前出现，否则**整张 import map 被浏览器忽略**，裸模块名 `state`/`mermaid` 无法解析，组件模块加载失败，页面完全空白 |
+| `@nue/mount.js` 的动态 import | 形如 `` import(`/${n}.js${i}`) `` 按站点根解析 | `rewriteMountJs()` 改写为 `` `../${n}.js${i}` `` | 浏览器请求 `https://zhaozg.github.io/index.html.js` → 404，页面空白 |
+
+> **不要用字面量匹配变量名**：压缩器在 CI 与本机可能把变量命名为不同标识符（`n` / `o`……），
+> 早期实现按字面量匹配 `` `/${n}.js${i}` ``，在 CI 产物上静默失效并直接部署坏产物。
+> 现改用捕获组正则，且改写后若仍残留按站点根解析的 import，**构建显式抛错**，由 CI 在部署前拦截。
+> 升级 Nuekit 或调整构建配置后，务必重跑 `tests/frontend-build.test.ts`。
+
+> **渲染库降级**：`mermaid` 在组件内以**动态** `import('mermaid')` 加载。
+> 若写为静态导入，CDN 不可达时整个组件模块会加载失败，报告正文也无法显示；
+> 动态导入下仅雷达图降级为提示文案，六维得分、证据链与智能解读照常渲染。
+
 ### ADR-004：LLM 智能解读层为何不参与打分
 
 **状态**：已采纳
