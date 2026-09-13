@@ -1,42 +1,84 @@
 {
   "username": "zhaozg",
-  "generatedAt": "2026-09-06T03:39:29.886Z",
+  "generatedAt": "2026-09-13T03:45:23.472Z",
   "dimensions": [
     {
       "key": "technical",
       "name": "技术硬实力",
-      "score": 69.76949772301239,
-      "weight": 0.25
+      "score": 80.43616438967905,
+      "weight": 0.25,
+      "available": true,
+      "evidence": [
+        "掌握 9 种语言（TypeScript/CMake/C/Zig/Lua/Vim script），平均权重 1.0，语言广度得分 40.0/40",
+        "仓库 lua-openssl：316 Star、复杂度 75.0/100、源码 119 文件，项目质量得分 15.0",
+        "仓库 luajit-cmake：88 Star、复杂度 33.0/100、源码 3 文件，项目质量得分 12.2",
+        "仓库 lui：38 Star、复杂度 52.0/100、源码 40 文件，项目质量得分 13.2"
+      ]
     },
     {
       "key": "architecture",
       "name": "架构与设计",
-      "score": 0,
-      "weight": 0.2
+      "score": 44.4,
+      "weight": 0.2,
+      "available": true,
+      "evidence": [
+        "建立测试目录（最多 98 个测试文件）",
+        "配置了 CI 流水线",
+        "平均模块化得分 36.0/100（最佳仓库 63/100，依据目录分层与测试分离）"
+      ]
     },
     {
       "key": "debugging",
       "name": "问题排查",
-      "score": 40,
-      "weight": 0.15
+      "score": 79.4,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "平均 Issue 响应 26.8 小时（偏慢）",
+        "Bug 修复提交 29 次，修复项得分 30.0/30",
+        "PR 合并率 98.0%，合并项得分 29.4/30"
+      ]
     },
     {
       "key": "engineering",
       "name": "工程化效能",
-      "score": 0,
-      "weight": 0.15
+      "score": 36.36666666666667,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "CI 流水线",
+        "安全扫描（CodeQL 等）",
+        "平均自动化深度 13.7%（工具链加权覆盖率）"
+      ]
     },
     {
       "key": "collaboration",
       "name": "沟通协作",
-      "score": 0,
-      "weight": 0.15
+      "score": 86.82758620689656,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "PR 平均描述 4139.8 字符（详实）",
+        "Review 评论 566 条，得分 30.0/30",
+        "Issue 讨论参与 410 次，得分 20.0/20",
+        "协作过的贡献者 1 人，得分 2.0/20",
+        "规范提交（Conventional Commits）占比 48.3%，得分 4.8/10"
+      ]
     },
     {
       "key": "business",
       "name": "业务洞察",
-      "score": 0,
-      "weight": 0.1
+      "score": 94.13333333333334,
+      "weight": 0.1,
+      "available": true,
+      "evidence": [
+        "平均 README 质量 60.3/100，得分 24.1/40",
+        "README 包含使用场景 / 功能说明",
+        "提供示例代码 / examples 目录",
+        "提供安装指引（降低上手门槛）",
+        "存在真实用户反馈（外部 Issue）",
+        "存在他人 Fork 后继续贡献"
+      ]
     }
   ],
   "redFlags": [
@@ -97,10 +139,19 @@
     {
       "id": 10,
       "name": "贡献图过于均匀",
-      "detected": true,
-      "detail": "每日提交量方差 0.00（阈值 <0.5）"
+      "detected": false,
+      "detail": ""
     }
   ],
-  "overallScore": 23.442374430753098,
-  "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。"
+  "overallScore": 68.79151236178758,
+  "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。",
+  "coverage": {
+    "availableDimensions": 6,
+    "totalDimensions": 6,
+    "notes": [
+      "已扫描 8/100 个原创仓库的文件结构与 README",
+      "已采集活动样本：PR 50 条、Issue 50 条、代表性提交 5 条",
+      "未采集数据不会被记为 0 分，也不会稀释其他维度的表现。"
+    ]
+  }
 }
