@@ -71,6 +71,7 @@ function makeInput(overrides: Partial<EvaluationInput> = {}): EvaluationInput {
       meaninglessCommitRatio: 0,
       selfResolvedIssueRatio: 0,
       contributionVariance: 2,
+      activityCollected: true,
     },
     ...overrides,
   };

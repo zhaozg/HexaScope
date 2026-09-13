@@ -125,6 +125,7 @@ describe('buildReport', () => {
         meaninglessCommitRatio: 0.1,
         selfResolvedIssueRatio: 0,
         contributionVariance: 2,
+        activityCollected: true,
       },
     };
 
@@ -159,7 +160,7 @@ describe('buildReport', () => {
         duplicateRepoRatio: 0,
         meaninglessCommitRatio: 0,
         selfResolvedIssueRatio: 0,
-        contributionVariance: 0,
+        contributionVariance: null,
       },
     });
     expect(Number.isNaN(report.overallScore)).toBe(false);

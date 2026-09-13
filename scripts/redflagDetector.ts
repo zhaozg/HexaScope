@@ -2,7 +2,12 @@
  * HexaScope 红牌检测引擎。
  *
  * 确定性算法：10 项刷分特征检测，用于识别人为刷分的账户。
- * 检测到任一红牌特征将在报告中标注警示，并酌情降低综合评分。
+ *
+ * 两条关键约束：
+ *  1. **"未采集"不得被当作"异常"**——样本不足（贡献方差为 null、无提交样本）时
+ *     必须判为"未触发（无法判定）"，否则空数据账户会被误报；
+ *  2. **区分"正常行为"与"刷分特征"**——例如独立维护者合并自己的 PR 属正常，
+ *     仅在同时"完全没有协作痕迹"时才计为红牌 #1。
  *
  * @see DESIGN.md 4.3
  */
@@ -15,6 +20,8 @@ export const SELF_MERGE_THRESHOLD = 0.6;
 export const FORK_RATIO_THRESHOLD = 0.8;
 /** 红牌 #3：AI 生成代码概率阈值。 */
 export const AI_CODE_THRESHOLD = 0.7;
+/** 红牌 #4：Bot 提交模式的最小样本量。 */
+export const BOT_PATTERN_MIN_SAMPLE = 10;
 /** 红牌 #5：Star/Follow 失调阈值。 */
 export const STAR_FOLLOW_THRESHOLD = 100;
 /** 红牌 #6：空仓库占比阈值。 */
@@ -25,21 +32,30 @@ export const DUPLICATE_REPO_THRESHOLD = 0.9;
 export const MEANINGLESS_COMMIT_THRESHOLD = 0.6;
 /** 红牌 #9：Issue 自问自答阈值。 */
 export const SELF_RESOLVED_THRESHOLD = 0.7;
-/** 红牌 #10：贡献图方差阈值。 */
+/** 红牌 #10：贡献日提交量变异系数阈值（低于此值即过于均匀）。 */
 export const CONTRIBUTION_VARIANCE_THRESHOLD = 0.5;
+
+/** 是否存在提交样本（用于区分"未采集"与"确认无异常"）。 */
+function hasCommitSample(activity: UserActivity): boolean {
+  return (activity.commitSamples?.length ?? 0) > 0 || activity.activityCollected === true;
+}
 
 /**
  * 检测 PR 自合并比例是否过高。
+ *
+ * 独立维护者在自有仓库合并自己的 PR 是常态，因此叠加"完全无协作痕迹"作为必要条件。
  * @param activity 用户活动指标
  */
 function detectSelfMerge(activity: UserActivity): RedFlag {
-  const detected = activity.selfMergedPrRatio > SELF_MERGE_THRESHOLD;
+  const noCollaboration =
+    activity.reviewCommentCount === 0 && activity.uniqueCollaborators === 0;
+  const detected = activity.selfMergedPrRatio > SELF_MERGE_THRESHOLD && noCollaboration;
   return {
     id: 1,
     name: 'PR 自合并比例过高',
     detected,
     detail: detected
-      ? `自合并比例 ${(activity.selfMergedPrRatio * 100).toFixed(1)}%（阈值 >${SELF_MERGE_THRESHOLD * 100}%）`
+      ? `自合并比例 ${(activity.selfMergedPrRatio * 100).toFixed(1)}%（阈值 >${SELF_MERGE_THRESHOLD * 100}%）且无协作记录`
       : '',
   };
 }
@@ -67,7 +83,8 @@ function detectForkHoarding(input: EvaluationInput): RedFlag {
  * @param activity 用户活动指标
  */
 function detectAiCode(activity: UserActivity): RedFlag {
-  const detected = activity.aiCodeProbability > AI_CODE_THRESHOLD;
+  // 无提交样本时概率恒为 0；显式要求样本存在，避免"未采集"被误判
+  const detected = hasCommitSample(activity) && activity.aiCodeProbability > AI_CODE_THRESHOLD;
   return {
     id: 3,
     name: 'AI 生成代码特征',
@@ -83,7 +100,8 @@ function detectAiCode(activity: UserActivity): RedFlag {
  * @param activity 用户活动指标
  */
 function detectBotPattern(activity: UserActivity): RedFlag {
-  const detected = activity.botLikeCommitPattern;
+  const sampleSize = activity.commitSamples?.length ?? 0;
+  const detected = activity.botLikeCommitPattern && sampleSize >= BOT_PATTERN_MIN_SAMPLE;
   return {
     id: 4,
     name: '提交时间分布异常（Bot 模式）',
@@ -145,7 +163,8 @@ function detectDuplicateRepos(activity: UserActivity): RedFlag {
  * @param activity 用户活动指标
  */
 function detectMeaninglessCommits(activity: UserActivity): RedFlag {
-  const detected = activity.meaninglessCommitRatio > MEANINGLESS_COMMIT_THRESHOLD;
+  const detected =
+    hasCommitSample(activity) && activity.meaninglessCommitRatio > MEANINGLESS_COMMIT_THRESHOLD;
   return {
     id: 8,
     name: '无意义提交信息',
@@ -177,13 +196,15 @@ function detectSelfResolvedIssues(activity: UserActivity): RedFlag {
  * @param activity 用户活动指标
  */
 function detectUniformContribution(activity: UserActivity): RedFlag {
-  const detected = activity.contributionVariance < CONTRIBUTION_VARIANCE_THRESHOLD;
+  // null = 采样天数不足，无法判定贡献均匀性（避免空数据假阳性）
+  const variance = activity.contributionVariance;
+  const detected = variance !== null && variance < CONTRIBUTION_VARIANCE_THRESHOLD;
   return {
     id: 10,
     name: '贡献图过于均匀',
     detected,
     detail: detected
-      ? `每日提交量方差 ${activity.contributionVariance.toFixed(2)}（阈值 <${CONTRIBUTION_VARIANCE_THRESHOLD}）`
+      ? `每日提交量变异系数 ${variance.toFixed(2)}（阈值 <${CONTRIBUTION_VARIANCE_THRESHOLD}）`
       : '',
   };
 }

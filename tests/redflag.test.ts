@@ -72,6 +72,8 @@ function makeHealthyInput(overrides: Partial<EvaluationInput> = {}): EvaluationI
       meaninglessCommitRatio: 0.2,
       selfResolvedIssueRatio: 0.1,
       contributionVariance: 3,
+      activityCollected: true,
+      commitSamples: Array.from({ length: 12 }, (_, i) => `feat(scope): change ${i}`),
     },
     ...overrides,
   };
@@ -104,6 +106,8 @@ function makeCheaterInput(): EvaluationInput {
       meaninglessCommitRatio: 0.9,
       selfResolvedIssueRatio: 0.9,
       contributionVariance: 0.1,
+      activityCollected: true,
+      commitSamples: Array.from({ length: 12 }, () => 'update'),
     },
   });
 }
@@ -118,6 +122,24 @@ describe('红牌检测', () => {
     const flags = detectRedFlags(makeCheaterInput());
     expect(flags).toHaveLength(10);
     expect(countTriggeredRedFlags(flags)).toBe(10);
+  });
+
+  it('未采集到样本时不误报（contributionVariance 为 null）', () => {
+    const flags = detectRedFlags(
+      makeHealthyInput({
+        activity: {
+          ...makeHealthyInput().activity,
+          contributionVariance: null,
+          aiCodeProbability: 0,
+          meaninglessCommitRatio: 0,
+          commitSamples: [],
+          activityCollected: false,
+        },
+      }),
+    );
+    expect(flags.find((f) => f.id === 10)?.detected).toBe(false);
+    expect(flags.find((f) => f.id === 3)?.detected).toBe(false);
+    expect(flags.find((f) => f.id === 8)?.detected).toBe(false);
   });
 
   it('红牌列表始终包含 10 项（含未触发项，便于报告展示）', () => {
