@@ -69,6 +69,9 @@ jobs:
       - name: 单元测试（覆盖率阈值 ≥ 85%，见 bunfig.toml）
         run: bun test
 
+      - name: 演示报告结构校验（demo-report.json 须与当前 schema 及评分算法一致）
+        run: bun run validate:demo
+
       - name: 类型检查
         run: bun run build
 
