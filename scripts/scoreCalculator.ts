@@ -41,6 +41,21 @@ export const DIMENSION_WEIGHTS: Record<string, number> = {
   business: 0.1,
 };
 
+/**
+ * 各维度中文名（键名顺序即报告与雷达图的展示顺序）。
+ *
+ * 作为单一事实来源导出，供报告结构校验（scripts/reportSchema.ts）复用，
+ * 避免维度名称在两处定义后发生漂移。
+ */
+export const DIMENSION_NAMES: Record<string, string> = {
+  technical: '技术硬实力',
+  architecture: '架构与设计',
+  debugging: '问题排查',
+  engineering: '工程化效能',
+  collaboration: '沟通协作',
+  business: '业务洞察',
+};
+
 /** 单个维度的计算结果（内部结构）。 */
 export interface DimensionOutcome {
   /** 0-100 得分。 */
@@ -429,18 +444,18 @@ export function calculateDimensions(input: EvaluationInput): DimensionScore[] {
   const collaboration = computeCollaboration(input);
   const business = computeBusiness(input.repos);
 
-  const entries: [string, string, DimensionOutcome][] = [
-    ['technical', '技术硬实力', technical],
-    ['architecture', '架构与设计', architecture],
-    ['debugging', '问题排查', debugging],
-    ['engineering', '工程化效能', engineering],
-    ['collaboration', '沟通协作', collaboration],
-    ['business', '业务洞察', business],
+  const entries: [string, DimensionOutcome][] = [
+    ['technical', technical],
+    ['architecture', architecture],
+    ['debugging', debugging],
+    ['engineering', engineering],
+    ['collaboration', collaboration],
+    ['business', business],
   ];
 
-  return entries.map(([key, name, outcome]) => ({
+  return entries.map(([key, outcome]) => ({
     key,
-    name,
+    name: DIMENSION_NAMES[key] ?? key,
     score: outcome.score,
     weight: DIMENSION_WEIGHTS[key] ?? 0,
     available: outcome.available,
