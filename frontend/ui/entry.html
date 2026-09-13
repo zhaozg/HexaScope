@@ -70,7 +70,6 @@
   const formatDate = (iso) =>
     new Date(iso).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })
 </script>
-
 <!-- ===================== 首页 ===================== -->
 <article :is="home">
   <header class="hero">
@@ -80,15 +79,77 @@
   </header>
 
   <form class="search-form" :onsubmit="go" autocomplete="off">
-    <input name="user" placeholder="输入 GitHub 用户名" required>
+    <label class="sr-only" for="github-user">GitHub 用户名</label>
+    <input id="github-user" name="user" placeholder="输入 GitHub 用户名" required>
     <button type="submit">生成雷达图</button>
   </form>
 
-  <p class="demo-hint">
-    没有评估报告？<a href="./?user=demo">查看演示报告</a>
+  <p class="home-demo">
+    <a class="btn btn-demo" href="./?user=demo">查看演示报告</a>
+    <span class="home-demo-hint">无需安装，先看一份完整报告长什么样</span>
   </p>
 
+  <!-- 六维模型速览：新用户在首屏即可知道“六个维度分别看什么” -->
+  <section class="panel dimensions-panel" aria-labelledby="dimensions-title">
+    <h2 id="dimensions-title">六维能力模型</h2>
+    <p class="dimensions-intro">
+      六个维度共同构成技术人画像，每个维度都由可追溯的公开数据支撑；数据不足的维度不计 0 分。
+    </p>
+    <ul class="dimension-cards">
+      <li :each="dim in dimensions()" class="dimension-card">
+        <span class="dimension-icon" aria-hidden="true">{ dim.icon }</span>
+        <strong>{ dim.name }</strong>
+        <span class="dimension-basis">{ dim.basis }</span>
+      </li>
+    </ul>
+    <p class="dimensions-more">
+      <a href="https://github.com/zhaozg/HexaScope/blob/main/README.md#-六维能力模型设计哲学" target="_blank" rel="noopener">
+        了解六维模型设计哲学 →
+      </a>
+    </p>
+  </section>
+
+  <figure class="demo-preview">
+    <img src="./images/demo-report.png" alt="HexaScope 演示报告截图：综合得分、六维能力雷达图与评分依据" width="860" height="1080" loading="lazy">
+    <figcaption>演示报告预览（对应 ?user=demo）</figcaption>
+  </figure>
+
+  <!-- 三步了解工作原理：默认折叠，不干扰已了解的用户 -->
+  <details class="howto">
+    <summary>三步了解工作原理</summary>
+    <ol class="howto-steps">
+      <li>
+        <strong>① 授权</strong>
+        <p>安装 HexaScope GitHub App（或在 Actions 页手动触发评估），仅申请只读权限。</p>
+      </li>
+      <li>
+        <strong>② 评估</strong>
+        <p>Actions 自动采集你的公开仓库结构与活动数据，用确定性算法评分并检测红牌。</p>
+      </li>
+      <li>
+        <strong>③ 查看</strong>
+        <p>在 GitHub Pages 打开雷达图，或在 IDE 里向 Copilot 提问「查看我的报告」。</p>
+      </li>
+    </ol>
+    <p class="howto-note">
+      仅评估安装 App 的账户本人（隐私边界）；自我评估存在主观偏差，报告仅供参考。
+    </p>
+  </details>
+
   <script>
+    // 六维能力模型速览（首页卡片）。
+    // 说明文字即各维度的实际评估依据，与 scripts/scoreCalculator.ts 的计分项保持一致。
+    dimensions() {
+      return [
+        { icon: '⌨️', name: '技术硬实力', basis: '语言广度 + Top 3 项目质量（Star、复杂度）' },
+        { icon: '🏛️', name: '架构与设计', basis: '架构／设计文档、测试目录、CI、模块化分层' },
+        { icon: '🔍', name: '问题排查', basis: 'Issue 响应时长、Bug 修复提交、PR 合并率' },
+        { icon: '⚙️', name: '工程化效能', basis: 'CI/CD、容器化、依赖机器人、安全扫描' },
+        { icon: '🤝', name: '沟通协作', basis: 'PR 描述质量、Review 与 Issue 参与、协作人数' },
+        { icon: '💡', name: '业务洞察', basis: 'README 质量、使用场景、安装指引、用户反馈' },
+      ]
+    }
+
     go(e) {
       const name = new FormData(e.target).get('user').trim()
       if (name) state.user = name

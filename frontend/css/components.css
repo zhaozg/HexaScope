@@ -59,10 +59,10 @@
     margin: 1.5rem auto;
   }
   .search-form input {
+    min-width: 0; /* 防止 flex 子项在窄屏撑出横向滚动 */
     flex: 1;
     background: var(--bg-panel);
     border: 1px solid var(--border);
-    border-radius: .5em;
     padding: .7em 1em;
     color: var(--text);
     font-size: 1em;
@@ -70,7 +70,7 @@
   }
   .search-form input:focus { border-color: var(--brand); }
   .search-form button {
-    background: var(--brand);
+    background: var(--brand-strong);
     border: 0;
     color: #fff;
     font-weight: 600;
@@ -80,7 +80,98 @@
   }
   .search-form button:hover { filter: brightness(1.1); }
 
-  .demo-hint { text-align: center; color: var(--text-subtle); font-size: .875em; }
+  /* 首页：演示报告入口（显眼按钮 + 说明） */
+  .home-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .8rem;
+    flex-wrap: wrap;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .home-demo-hint { color: var(--text-subtle); font-size: .85em; }
+  .btn-demo {
+    background: transparent;
+    border: 1px solid var(--brand);
+    color: var(--brand);
+  }
+  .btn-demo:hover { background: rgba(47, 129, 247, .12); }
+
+  /* ---------- 首页：六维模型速览卡片 ---------- */
+  .dimensions-intro { font-size: .875em; color: var(--text-subtle); margin-bottom: 1rem; }
+  .dimension-cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .8rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .dimension-card {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: .6em;
+    padding: .9em 1em;
+    display: flex;
+    flex-direction: column;
+    gap: .2em;
+    min-width: 0;
+  }
+  .dimension-icon { font-size: 1.2em; line-height: 1.2; }
+  .dimension-card strong { color: var(--text-strong); font-size: .95em; }
+  .dimension-basis { font-size: .8em; color: var(--text-subtle); line-height: 1.5; }
+  .dimensions-more { margin: .9rem 0 0; font-size: .85em; }
+
+  /* ---------- 首页：演示报告截图 ---------- */
+  .demo-preview {
+    margin: 0 0 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-panel);
+  }
+  .demo-preview img { display: block; width: 100%; height: auto; }
+  .demo-preview figcaption {
+    padding: .6em 1em;
+    font-size: .78em;
+    color: var(--text-subtle);
+    border-top: 1px solid var(--border);
+  }
+
+  /* ---------- 首页：三步了解工作原理（折叠） ---------- */
+  .howto {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .howto summary {
+    cursor: pointer;
+    color: var(--text-strong);
+    font-weight: 600;
+    font-size: .95em;
+    list-style: none;
+  }
+  .howto summary::-webkit-details-marker { display: none; }
+  .howto summary::before { content: '\25B8 '; color: var(--text-subtle); }
+  .howto[open] summary::before { content: '\25BE '; }
+  .howto-steps {
+    margin: .9em 0 0;
+    padding-left: 1.2em;
+    display: grid;
+    gap: .7rem;
+  }
+  .howto-steps li { font-size: .875em; }
+  .howto-steps strong { color: var(--text-strong); }
+  .howto-steps p { margin: .15em 0 0; color: var(--text-subtle); }
+  .howto-note {
+    margin: 1em 0 0;
+    font-size: .78em;
+    color: var(--text-subtle);
+    font-style: italic;
+  }
 
   /* ---------- 状态面板（加载 / 错误） ---------- */
   .state-panel {
@@ -206,12 +297,13 @@
     border: 1px solid var(--border);
     border-radius: .6em;
     padding: .75em 1em;
-    opacity: .55;
+    /* 未触发项用“弱化配色”而非整体降低透明度：
+       opacity 会把正文压到对比度 2.6:1（低于 WCAG AA 4.5:1），改用中性色保持可读 */
   }
   .flag-item.is-detected {
     border-color: rgba(248, 81, 73, .55);
     background: rgba(248, 81, 73, .08);
-    opacity: 1;
+    /* 已触发项：红边框 + 淡红底，不再依赖 opacity 区分 */
   }
   .flag-badge {
     font-family: var(--mono);
@@ -242,7 +334,8 @@
   .coverage-hint { font-size: .8em; color: var(--text-subtle); margin: 0; font-style: italic; }
 
   /* ---------- 维度证据链 ---------- */
-  .score-item.is-unavailable { opacity: .6; }
+  /* 数据不足的维度：用中性色弱化，避免 opacity 造成对比度不足 */
+  .score-item.is-unavailable .score-name { color: var(--text-subtle); }
   .score-value.is-na { font-size: .85em; color: var(--text-subtle); }
   .evidence { margin-top: .5em; }
   .evidence summary {
@@ -301,4 +394,16 @@
   color: var(--color-text-muted, #9aa4b2);
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+/* 移动端（375px 宽，如 iPhone SE）：优先避免横向滚动 */
+@media (max-width: 480px) {
+  .hero { padding: 2.25rem .5rem 1.5rem; }
+  .hero h1 { font-size: 2em; }
+  .search-form { flex-direction: column; }
+  .search-form button { padding: .7em 1.4em; }
+  .dimension-cards { grid-template-columns: 1fr; }
+  .insights-grid { grid-template-columns: 1fr; }
+  .report-header { flex-direction: column; }
+  .overall-score { align-self: stretch; }
 }

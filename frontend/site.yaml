@@ -5,6 +5,9 @@ meta:
   title: HexaScope — 开发者六维能力雷达图
   description: 基于 GitHub 公开数据的开发者六维能力画像，开源、免费、GitHub 原生。
 
+# 页面语言（产出 <html lang="zh-CN">，可访问性要求：屏幕阅读器需正确的语言声明）
+language: zh-CN
+
 # 开发服务器（server/ 目录下的路由处理器）
 server:
   dir: server
