@@ -6,7 +6,11 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { collectEvaluationInput, decodeBase64Content, parseLastPage } from '../scripts/collector.ts';
+import {
+  collectEvaluationInput,
+  decodeBase64Content,
+  parseLastPage,
+} from '../scripts/collector.ts';
 import { calculateDimensions, calculateOverallScore } from '../scripts/scoreCalculator.ts';
 
 /** 编码 README（GitHub 返回 base64）。 */
@@ -204,7 +208,9 @@ describe('工具函数', () => {
 
   it('decodeBase64Content 还原带换行的 base64', () => {
     const encoded = Buffer.from('你好，HexaScope', 'utf8').toString('base64');
-    expect(decodeBase64Content(`${encoded.slice(0, 4)}\n${encoded.slice(4)}`)).toBe('你好，HexaScope');
+    expect(decodeBase64Content(`${encoded.slice(0, 4)}\n${encoded.slice(4)}`)).toBe(
+      '你好，HexaScope',
+    );
     expect(decodeBase64Content('')).toBe('');
   });
 });

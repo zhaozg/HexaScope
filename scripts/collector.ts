@@ -206,19 +206,28 @@ export async function collectEvaluationInput(
     const collected = tree !== null;
     const entries: TreeEntry[] = collected
       ? ((tree.data.tree ?? []) as { path?: string; type?: string }[])
-          .filter((entry): entry is { path: string; type: string } => Boolean(entry.path && entry.type))
+          .filter((entry): entry is { path: string; type: string } =>
+            Boolean(entry.path && entry.type),
+          )
           .map((entry) => ({ path: entry.path, type: entry.type }))
       : [];
 
-    const signals = collected
-      ? detectRepoSignals(entries.map((entry) => entry.path))
-      : null;
+    const signals = collected ? detectRepoSignals(entries.map((entry) => entry.path)) : null;
     const stats = collected
       ? computeRepoStats(entries)
-      : { fileCount: 0, sourceFileCount: 0, testFileCount: 0, maxDepth: 0, dirCount: 0, topLevelDirCount: 0 };
+      : {
+          fileCount: 0,
+          sourceFileCount: 0,
+          testFileCount: 0,
+          maxDepth: 0,
+          dirCount: 0,
+          topLevelDirCount: 0,
+        };
 
     const readmeContent =
-      readme && typeof readme.data.content === 'string' ? decodeBase64Content(readme.data.content) : '';
+      readme && typeof readme.data.content === 'string'
+        ? decodeBase64Content(readme.data.content)
+        : '';
     const readmeAnalysis = readmeContent ? scoreReadme(readmeContent) : null;
     const topics = repo.topics ?? [];
 
@@ -252,25 +261,31 @@ export async function collectEvaluationInput(
       hasForksWithCommits: (repo.forks_count ?? 0) > 0,
       // Phase 2 细粒度信号
       signalsCollected: collected,
-      ...(signals ? {
-        hasDocs: signals.hasDocs,
-        hasChangelog: signals.hasChangelog,
-        hasContributing: signals.hasContributing,
-        hasLicense: signals.hasLicense,
-      } : {}),
-      ...(readmeAnalysis ? {
-        hasBadges: readmeAnalysis.hasBadges,
-        hasScreenshots: readmeAnalysis.hasScreenshots,
-        hasInstallSection: readmeAnalysis.hasInstallSection,
-        hasUsageSection: readmeAnalysis.hasUsageSection,
-        readmeLength: readmeAnalysis.length,
-      } : {}),
-      ...(collected ? {
-        fileCount: stats.fileCount,
-        sourceFileCount: stats.sourceFileCount,
-        testFileCount: stats.testFileCount,
-        maxDepth: stats.maxDepth,
-      } : {}),
+      ...(signals
+        ? {
+            hasDocs: signals.hasDocs,
+            hasChangelog: signals.hasChangelog,
+            hasContributing: signals.hasContributing,
+            hasLicense: signals.hasLicense,
+          }
+        : {}),
+      ...(readmeAnalysis
+        ? {
+            hasBadges: readmeAnalysis.hasBadges,
+            hasScreenshots: readmeAnalysis.hasScreenshots,
+            hasInstallSection: readmeAnalysis.hasInstallSection,
+            hasUsageSection: readmeAnalysis.hasUsageSection,
+            readmeLength: readmeAnalysis.length,
+          }
+        : {}),
+      ...(collected
+        ? {
+            fileCount: stats.fileCount,
+            sourceFileCount: stats.sourceFileCount,
+            testFileCount: stats.testFileCount,
+            maxDepth: stats.maxDepth,
+          }
+        : {}),
       forkCount: repo.forks_count ?? 0,
       openIssueCount: repo.open_issues_count ?? 0,
       topics,
@@ -417,9 +432,7 @@ async function collectActivity(
   const mergedPrs = prs.filter((pr) => Boolean(pr.pull_request?.merged_at));
   const prMergeRate = prs.length > 0 ? mergedPrs.length / prs.length : 0;
 
-  const descriptions = prs
-    .map((pr) => (pr.body ?? '').trim())
-    .filter((body) => body.length > 0);
+  const descriptions = prs.map((pr) => (pr.body ?? '').trim()).filter((body) => body.length > 0);
   const avgPrDescriptionLength =
     descriptions.length > 0
       ? descriptions.reduce((sum, body) => sum + body.length, 0) / descriptions.length
@@ -458,7 +471,8 @@ async function collectActivity(
     issueDiscussionCount: discussionSearch?.data.total_count ?? 0,
     uniqueCollaborators: collaborators.size,
     selfMergedPrRatio: Number(selfMergedPrRatio.toFixed(4)),
-    forkRatio: repoCount > 0 ? Number((repos.filter((r) => r.isFork).length / repoCount).toFixed(4)) : 0,
+    forkRatio:
+      repoCount > 0 ? Number((repos.filter((r) => r.isFork).length / repoCount).toFixed(4)) : 0,
     aiCodeProbability: commitAnalysis.aiCodeProbability,
     botLikeCommitPattern: commitAnalysis.botLikeCommitPattern,
     starFollowRatio,

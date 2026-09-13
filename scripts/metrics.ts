@@ -95,16 +95,20 @@ export interface CommitAnalysis {
   samples: string[];
 }
 
-const SOURCE_FILE = /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rs|rb|php|java|kt|kts|scala|swift|c|h|cc|cpp|hpp|cxx|cs|lua|zig|sh|bash|zsh|sql|vue|svelte|dart|ex|exs|erl|hs|ml|clj|groovy|pl|r|jl)$/i;
+const SOURCE_FILE =
+  /\.(ts|tsx|js|jsx|mjs|cjs|py|go|rs|rb|php|java|kt|kts|scala|swift|c|h|cc|cpp|hpp|cxx|cs|lua|zig|sh|bash|zsh|sql|vue|svelte|dart|ex|exs|erl|hs|ml|clj|groovy|pl|r|jl)$/i;
 const TEST_FILE = /(^|\/)(test|tests|spec|specs|__tests__)\/|\.(test|spec)\.[a-z]+$/i;
 const MEANINGLESS_MESSAGE =
   /^(update|updates|updated|fix|fixes|fixed|fix bug|bugfix|wip|tmp|temp|test|tests|init|initial commit|commit|changes?|misc|minor|patch|save|backup|todo|stuff|hello|first commit|\.+|-+|\d+)$/i;
 const BUGFIX_MESSAGE =
   /(^|\b|\/)(fix(e[sd])?|bug(fix)?|hotfix|repair|regression)(\b|:|\(|\/)|修复|修正|缺陷|排错/i;
 const AI_COAUTHOR = /co-authored-by:[^\n]*(copilot|claude|cursor|codex|devin|windsurf|chatgpt)/i;
-const AI_GENERATED = /(generated|created|written|authored)\s+(with|by)\s+(copilot|claude|ai|chatgpt|cursor|codex)/i;
-const CONVENTIONAL = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]*\))?!?:\s/;
-const TEMPLATE_MESSAGE = /^(update|add|create|remove|delete)\s+[a-z0-9._/-]+\.(md|txt|json|ya?ml|lock)$/i;
+const AI_GENERATED =
+  /(generated|created|written|authored)\s+(with|by)\s+(copilot|claude|ai|chatgpt|cursor|codex)/i;
+const CONVENTIONAL =
+  /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^)]*\))?!?:\s/;
+const TEMPLATE_MESSAGE =
+  /^(update|add|create|remove|delete)\s+[a-z0-9._/-]+\.(md|txt|json|ya?ml|lock)$/i;
 
 const clamp = (value: number, min = 0, max = 100): number => Math.min(Math.max(value, min), max);
 
@@ -142,9 +146,8 @@ export function detectRepoSignals(paths: string[]): RepoSignals {
       anyPath(lower, (p) => /(^|\/)docker-compose[^/]*\.ya?ml$/.test(p)) ||
       anyPath(lower, (p) => /(^|\/)compose\.ya?ml$/.test(p)),
     hasKubernetesManifest:
-      anyPath(
-        lower,
-        (p) => /(^|\/)(k8s|kubernetes|helm|manifests?|deployments?)\/.+\.ya?ml$/.test(p),
+      anyPath(lower, (p) =>
+        /(^|\/)(k8s|kubernetes|helm|manifests?|deployments?)\/.+\.ya?ml$/.test(p),
       ) || anyPath(lower, (p) => /(^|\/)(kustomization|chart)\.ya?ml$/.test(p)),
     hasPreCommitHooks:
       anyPath(lower, (p) => /(^|\/)\.pre-commit-config\.ya?ml$/.test(p)) ||
@@ -153,20 +156,16 @@ export function detectRepoSignals(paths: string[]): RepoSignals {
     hasDependencyBot:
       anyPath(lower, (p) => /(^|\/)\.github\/dependabot\.ya?ml$/.test(p)) ||
       anyPath(lower, (p) => /(^|\/)renovate\.json5?$/.test(p)),
-    hasReleaseWorkflow: anyPath(
-      lower,
-      (p) =>
-        /^\.github\/workflows\/[^/]*(release|publish|deploy|semantic-release|goreleaser|docker)[^/]*\.ya?ml$/.test(
-          p,
-        ),
+    hasReleaseWorkflow: anyPath(lower, (p) =>
+      /^\.github\/workflows\/[^/]*(release|publish|deploy|semantic-release|goreleaser|docker)[^/]*\.ya?ml$/.test(
+        p,
+      ),
     ),
     hasCodeqlOrSecurityScan:
-      anyPath(
-        lower,
-        (p) =>
-          /^\.github\/workflows\/[^/]*(codeql|security|snyk|trivy|scorecard|audit|gitleaks)[^/]*\.ya?ml$/.test(
-            p,
-          ),
+      anyPath(lower, (p) =>
+        /^\.github\/workflows\/[^/]*(codeql|security|snyk|trivy|scorecard|audit|gitleaks)[^/]*\.ya?ml$/.test(
+          p,
+        ),
       ) || anyPath(lower, (p) => /(^|\/)(\.gitleaks\.toml|\.snyk|\.semgrep\.ya?ml)$/.test(p)),
     hasDocs: anyPath(lower, (p) => /(^|\/)docs?\//.test(p)),
     hasChangelog: anyPath(lower, (p) => /(^|\/)changelog(\.mdx?|\.txt)?$/.test(p)),
@@ -402,8 +401,7 @@ export function analyzeCommits(commits: CommitSample[]): CommitAnalysis {
     const counts = [...dailyCounts.values()];
     const mean = counts.reduce((sum, value) => sum + value, 0) / counts.length;
     if (mean > 0) {
-      const variance =
-        counts.reduce((sum, value) => sum + (value - mean) ** 2, 0) / counts.length;
+      const variance = counts.reduce((sum, value) => sum + (value - mean) ** 2, 0) / counts.length;
       contributionVariance = Number((variance / mean ** 2).toFixed(4));
     }
   }

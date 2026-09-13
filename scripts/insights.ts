@@ -72,9 +72,10 @@ export function resolveLlmConfig(env: EnvLike = process.env): LlmConfig | null {
   }
 
   const usingOpenRouter = !explicitKey && Boolean(openRouterKey);
-  const defaultBase = usingOpenRouter || explicitKey
-    ? DEFAULT_LLM_BASE_URL
-    : 'https://api.deepseek.com/chat/completions';
+  const defaultBase =
+    usingOpenRouter || explicitKey
+      ? DEFAULT_LLM_BASE_URL
+      : 'https://api.deepseek.com/chat/completions';
   const baseUrl = env['HEXASCOPE_LLM_BASE_URL'] || defaultBase;
   const explicitModel = env['HEXASCOPE_LLM_MODEL'];
   const models = explicitModel
@@ -127,11 +128,13 @@ export function buildEvidence(report: EvaluationReport, input: EvaluationInput):
       available: dim.available !== false,
       evidence: dim.evidence ?? [],
     })),
-    redFlags: report.redFlags.filter((flag) => flag.detected).map((flag) => ({
-      id: flag.id,
-      name: flag.name,
-      detail: flag.detail,
-    })),
+    redFlags: report.redFlags
+      .filter((flag) => flag.detected)
+      .map((flag) => ({
+        id: flag.id,
+        name: flag.name,
+        detail: flag.detail,
+      })),
     activity: {
       commitSamples: input.activity.commitSamples ?? [],
       conventionalCommitRatio: input.activity.conventionalCommitRatio ?? null,
@@ -165,13 +168,14 @@ export function hashEvidence(evidence: string): string {
 export function buildPrompt(evidence: string): { system: string; user: string } {
   return {
     system:
-      '你是资深工程师画像分析助手。只依据用户提供的 JSON 证据撰写中文解读，'
-      + '严禁编造证据中不存在的数字、仓库或事实；证据未覆盖的维度不要评价。'
-      + '直接输出单个 JSON 对象：不要输出思考过程、不要 Markdown 代码围栏、不要任何额外文字。'
-      + 'JSON 结构：{"summary": string, "strengths": [{"title": string, "detail": string, "evidence": string}],'
-      + ' "improvements": [{"title": string, "detail": string, "evidence": string}],'
-      + ' "redFlagNotes": [{"id": number, "note": string}]}。'
-      + 'strengths 与 improvements 各 2-3 条，每条 detail 不超过 80 字，evidence 必须引用 JSON 中的原始数字或字段。'      + '整个回复控制在 800 字以内，禁止重复或复述题目。',
+      '你是资深工程师画像分析助手。只依据用户提供的 JSON 证据撰写中文解读，' +
+      '严禁编造证据中不存在的数字、仓库或事实；证据未覆盖的维度不要评价。' +
+      '直接输出单个 JSON 对象：不要输出思考过程、不要 Markdown 代码围栏、不要任何额外文字。' +
+      'JSON 结构：{"summary": string, "strengths": [{"title": string, "detail": string, "evidence": string}],' +
+      ' "improvements": [{"title": string, "detail": string, "evidence": string}],' +
+      ' "redFlagNotes": [{"id": number, "note": string}]}。' +
+      'strengths 与 improvements 各 2-3 条，每条 detail 不超过 80 字，evidence 必须引用 JSON 中的原始数字或字段。' +
+      '整个回复控制在 800 字以内，禁止重复或复述题目。',
     user: `以下是该开发者 GitHub 公开数据的确定性评估结果，请生成解读：\n${evidence}`,
   };
 }

@@ -230,7 +230,10 @@ describe('parseInsightsResponse', () => {
       summary: 's',
       strengths: ['bad', { title: 'ok', detail: 'd', evidence: 'e' }, null],
       improvements: [],
-      redFlagNotes: [{ id: 'x', note: 'n' }, { id: 2, note: '有效说明' }],
+      redFlagNotes: [
+        { id: 'x', note: 'n' },
+        { id: 2, note: '有效说明' },
+      ],
     });
     const insights = parseInsightsResponse(content, 'm', 'hash', 'now');
     expect(insights?.strengths).toHaveLength(1);
@@ -327,7 +330,8 @@ describe('generateInsights', () => {
     const report = buildReport(input);
     const insights = await generateInsights(report, input, {
       env,
-      fetchImpl: (async () => new Response('rate limited', { status: 429 })) as unknown as typeof fetch,
+      fetchImpl: (async () =>
+        new Response('rate limited', { status: 429 })) as unknown as typeof fetch,
     });
     expect(insights).toBeUndefined();
   });

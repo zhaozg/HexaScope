@@ -37,11 +37,7 @@ describe('detectRepoSignals', () => {
   });
 
   it('识别容器化与编排清单', () => {
-    const signals = detectRepoSignals([
-      'Dockerfile',
-      'docker-compose.yml',
-      'deploy/k8s/app.yaml',
-    ]);
+    const signals = detectRepoSignals(['Dockerfile', 'docker-compose.yml', 'deploy/k8s/app.yaml']);
     expect(signals.hasDockerfile).toBe(true);
     expect(signals.hasDockerCompose).toBe(true);
     expect(signals.hasKubernetesManifest).toBe(true);
@@ -233,8 +229,14 @@ describe('analyzeCommits', () => {
 
   it('检测 Copilot 共同署名等 AI 痕迹', () => {
     const result = analyzeCommits([
-      mk('feat: a\n\nCo-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>', '2026-01-01T10:00:00Z'),
-      mk('feat: b\n\nCo-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>', '2026-01-02T10:00:00Z'),
+      mk(
+        'feat: a\n\nCo-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>',
+        '2026-01-01T10:00:00Z',
+      ),
+      mk(
+        'feat: b\n\nCo-authored-by: Copilot <175728472+Copilot@users.noreply.github.com>',
+        '2026-01-02T10:00:00Z',
+      ),
       mk('feat: c', '2026-01-03T10:00:00Z'),
     ]);
     expect(result.aiCodeProbability).toBeGreaterThan(0.3);
@@ -242,7 +244,9 @@ describe('analyzeCommits', () => {
 
   it('提交时间高度集中时判定为 Bot 模式（需足够样本）', () => {
     const botty = analyzeCommits(
-      Array.from({ length: 12 }, (_, i) => mk(`chore: tick ${i}`, `2026-01-0${(i % 9) + 1}T03:00:00Z`)),
+      Array.from({ length: 12 }, (_, i) =>
+        mk(`chore: tick ${i}`, `2026-01-0${(i % 9) + 1}T03:00:00Z`),
+      ),
     );
     expect(botty.botLikeCommitPattern).toBe(true);
 

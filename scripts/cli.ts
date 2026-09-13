@@ -14,12 +14,7 @@ import { collectEvaluationInput } from './collector.ts';
 import { generateInsights } from './insights.ts';
 import { calculateDimensions, calculateOverallScore } from './scoreCalculator.ts';
 import { detectRedFlags } from './redflagDetector.ts';
-import type {
-  CliWriteStream,
-  EvaluationInput,
-  EvaluationReport,
-  ReportCoverage,
-} from './types.ts';
+import type { CliWriteStream, EvaluationInput, EvaluationReport, ReportCoverage } from './types.ts';
 
 /** 自我评估免责声明（隐私边界要求）。 */
 export const DISCLAIMER =

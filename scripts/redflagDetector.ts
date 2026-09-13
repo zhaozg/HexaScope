@@ -47,8 +47,7 @@ function hasCommitSample(activity: UserActivity): boolean {
  * @param activity 用户活动指标
  */
 function detectSelfMerge(activity: UserActivity): RedFlag {
-  const noCollaboration =
-    activity.reviewCommentCount === 0 && activity.uniqueCollaborators === 0;
+  const noCollaboration = activity.reviewCommentCount === 0 && activity.uniqueCollaborators === 0;
   const detected = activity.selfMergedPrRatio > SELF_MERGE_THRESHOLD && noCollaboration;
   return {
     id: 1,

@@ -221,7 +221,9 @@ export function computeDebugging(input: Pick<EvaluationInput, 'activity'>): Dime
   );
 
   score += activity.prMergeRate * 30;
-  evidence.push(`PR 合并率 ${fmt(activity.prMergeRate * 100)}%，合并项得分 ${fmt(activity.prMergeRate * 30)}/30`);
+  evidence.push(
+    `PR 合并率 ${fmt(activity.prMergeRate * 100)}%，合并项得分 ${fmt(activity.prMergeRate * 30)}/30`,
+  );
 
   return { score: clamp(score), available: true, evidence };
 }
@@ -251,16 +253,56 @@ export function computeEngineering(repos: RepoInfo[]): DimensionOutcome {
     }
   };
 
-  add(top.some((r) => r.hasCiConfig), 25, 'CI 流水线');
-  add(top.some((r) => r.hasDockerfile), 15, 'Dockerfile 容器化');
-  add(top.some((r) => r.hasDockerCompose), 5, 'Docker Compose 编排');
-  add(top.some((r) => r.hasKubernetesManifest), 5, 'Kubernetes/Helm 部署清单');
-  add(top.some((r) => r.hasPreCommitHooks), 10, 'Git Hooks / pre-commit 校验');
-  add(top.some((r) => r.hasDependencyBot), 10, '依赖自动升级机器人（Dependabot/Renovate）');
-  add(top.some((r) => r.hasReleaseWorkflow), 10, '自动化发布流水线');
-  add(top.some((r) => r.hasCodeqlOrSecurityScan), 10, '安全扫描（CodeQL 等）');
-  add(top.some((r) => r.hasChangelog), 5, 'CHANGELOG 版本记录');
-  add(top.some((r) => r.hasContributing), 5, 'CONTRIBUTING 协作规范');
+  add(
+    top.some((r) => r.hasCiConfig),
+    25,
+    'CI 流水线',
+  );
+  add(
+    top.some((r) => r.hasDockerfile),
+    15,
+    'Dockerfile 容器化',
+  );
+  add(
+    top.some((r) => r.hasDockerCompose),
+    5,
+    'Docker Compose 编排',
+  );
+  add(
+    top.some((r) => r.hasKubernetesManifest),
+    5,
+    'Kubernetes/Helm 部署清单',
+  );
+  add(
+    top.some((r) => r.hasPreCommitHooks),
+    10,
+    'Git Hooks / pre-commit 校验',
+  );
+  add(
+    top.some((r) => r.hasDependencyBot),
+    10,
+    '依赖自动升级机器人（Dependabot/Renovate）',
+  );
+  add(
+    top.some((r) => r.hasReleaseWorkflow),
+    10,
+    '自动化发布流水线',
+  );
+  add(
+    top.some((r) => r.hasCodeqlOrSecurityScan),
+    10,
+    '安全扫描（CodeQL 等）',
+  );
+  add(
+    top.some((r) => r.hasChangelog),
+    5,
+    'CHANGELOG 版本记录',
+  );
+  add(
+    top.some((r) => r.hasContributing),
+    5,
+    'CONTRIBUTING 协作规范',
+  );
 
   const automationDepth = top.reduce((sum, repo) => sum + repo.automationDepth, 0) / top.length;
   score += Math.min(automationDepth * 10, 10);
@@ -301,7 +343,9 @@ export function computeCollaboration(input: Pick<EvaluationInput, 'activity'>): 
   }
 
   score += Math.min(activity.reviewCommentCount * 2, 30);
-  evidence.push(`Review 评论 ${activity.reviewCommentCount} 条，得分 ${fmt(Math.min(activity.reviewCommentCount * 2, 30))}/30`);
+  evidence.push(
+    `Review 评论 ${activity.reviewCommentCount} 条，得分 ${fmt(Math.min(activity.reviewCommentCount * 2, 30))}/30`,
+  );
 
   score += Math.min(activity.issueDiscussionCount * 1.5, 20);
   evidence.push(
@@ -316,7 +360,9 @@ export function computeCollaboration(input: Pick<EvaluationInput, 'activity'>): 
   const conventional = activity.conventionalCommitRatio ?? null;
   if (conventional !== null) {
     score += Math.min(conventional * 10, 10);
-    evidence.push(`规范提交（Conventional Commits）占比 ${fmt(conventional * 100)}%，得分 ${fmt(Math.min(conventional * 10, 10))}/10`);
+    evidence.push(
+      `规范提交（Conventional Commits）占比 ${fmt(conventional * 100)}%，得分 ${fmt(Math.min(conventional * 10, 10))}/10`,
+    );
   }
 
   return { score: clamp(score), available: true, evidence };
@@ -342,7 +388,9 @@ export function computeBusiness(repos: RepoInfo[]): DimensionOutcome {
   let score = 0;
   const readmeScore = top.reduce((sum, r) => sum + r.readmeScore, 0) / top.length;
   score += Math.min(readmeScore * 0.4, 40);
-  evidence.push(`平均 README 质量 ${fmt(readmeScore)}/100，得分 ${fmt(Math.min(readmeScore * 0.4, 40))}/40`);
+  evidence.push(
+    `平均 README 质量 ${fmt(readmeScore)}/100，得分 ${fmt(Math.min(readmeScore * 0.4, 40))}/40`,
+  );
 
   if (top.some((r) => r.hasUseCasesDoc)) {
     score += 20;
