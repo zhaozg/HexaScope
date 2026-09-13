@@ -227,6 +227,61 @@
   .flag-body p { margin: .2em 0 0; font-size: .85em; color: var(--bad); }
   .flag-body .flag-ok { color: var(--text-subtle); }
 
+  /* ---------- 数据覆盖度 ---------- */
+  .coverage-panel h2 { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; }
+  .coverage-count {
+    font-size: .72em;
+    font-weight: 600;
+    color: var(--accent, #58a6ff);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: .1em .6em;
+  }
+  .coverage-list { margin: .4em 0 .6em; padding-left: 1.2em; }
+  .coverage-list li { font-size: .85em; color: var(--text-subtle); margin: .2em 0; }
+  .coverage-hint { font-size: .8em; color: var(--text-subtle); margin: 0; font-style: italic; }
+
+  /* ---------- 维度证据链 ---------- */
+  .score-item.is-unavailable { opacity: .6; }
+  .score-value.is-na { font-size: .85em; color: var(--text-subtle); }
+  .evidence { margin-top: .5em; }
+  .evidence summary {
+    cursor: pointer;
+    font-size: .78em;
+    color: var(--text-subtle);
+    list-style: none;
+  }
+  .evidence summary::-webkit-details-marker { display: none; }
+  .evidence summary::before { content: '▸ '; }
+  .evidence[open] summary::before { content: '▾ '; }
+  .evidence ul { margin: .4em 0 0; padding-left: 1.1em; }
+  .evidence li { font-size: .78em; color: var(--text-subtle); margin: .25em 0; line-height: 1.5; }
+
+  /* ---------- AI 智能解读 ---------- */
+  .insights-panel h2 { display: flex; align-items: baseline; gap: .6em; flex-wrap: wrap; }
+  .insights-model {
+    font-family: var(--mono);
+    font-size: .65em;
+    font-weight: 500;
+    color: var(--text-subtle);
+    border: 1px solid var(--border-strong);
+    border-radius: .4em;
+    padding: .1em .5em;
+  }
+  .insights-summary { font-size: .95em; line-height: 1.7; color: var(--text-strong); }
+  .insights-grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .insights-col h3 { font-size: .85em; margin: 0 0 .5em; color: var(--text-subtle); text-transform: uppercase; letter-spacing: .05em; }
+  .insights-col ul { list-style: none; margin: 0; padding: 0; }
+  .insights-col li { margin-bottom: .8em; }
+  .insights-col strong { color: var(--text-strong); font-size: .9em; }
+  .insights-col p { margin: .2em 0; font-size: .85em; line-height: 1.6; }
+  .insight-evidence { font-size: .75em; color: var(--text-subtle); font-family: var(--mono); }
+  .insights-notes { margin-top: 1em; }
+  .insights-notes summary { cursor: pointer; font-size: .82em; color: var(--text-subtle); }
+  .insights-notes ul { list-style: none; margin: .5em 0 0; padding: 0; }
+  .insights-notes li { font-size: .82em; margin: .35em 0; display: flex; gap: .5em; align-items: flex-start; }
+  .insights-advisory { font-size: .75em; color: var(--text-subtle); margin: 1em 0 0; font-style: italic; }
+
   /* ---------- 免责声明 ---------- */
   .disclaimer {
     font-size: .8em;

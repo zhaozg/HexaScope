@@ -1,42 +1,92 @@
 {
   "username": "demo",
-  "generatedAt": "2026-08-30T04:57:44.824Z",
+  "generatedAt": "2026-09-13T00:00:00.000Z",
   "dimensions": [
     {
       "key": "technical",
       "name": "技术硬实力",
-      "score": 45.49259887289658,
-      "weight": 0.25
+      "score": 62.078025251274816,
+      "weight": 0.25,
+      "available": true,
+      "evidence": [
+        "掌握 5 种语言（TypeScript/Rust/Go/Lua/Shell），平均权重 1.0，语言广度得分 25.5/40",
+        "仓库 hexa-core：420 Star、复杂度 82.0/100、源码 168 文件，项目质量得分 15.5",
+        "仓库 edge-router：96 Star、复杂度 61.0/100、源码 42 文件，项目质量得分 14.1",
+        "仓库 dotfiles：5 Star、复杂度 34.0/100、源码 18 文件，项目质量得分 7.0"
+      ]
     },
     {
       "key": "architecture",
       "name": "架构与设计",
-      "score": 85,
-      "weight": 0.2
+      "score": 81.6,
+      "weight": 0.2,
+      "available": true,
+      "evidence": [
+        "存在 ARCHITECTURE.md 架构说明",
+        "存在设计文档 / ADR 目录",
+        "建立测试目录（最多 46 个测试文件）",
+        "配置了 CI 流水线",
+        "平均模块化得分 54.0/100（最佳仓库 74/100，依据目录分层与测试分离）"
+      ]
     },
     {
       "key": "debugging",
       "name": "问题排查",
-      "score": 85.5,
-      "weight": 0.15
+      "score": 84.6,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "平均 Issue 响应 7.4 小时",
+        "Bug 修复提交 11 次，修复项得分 30.0/30",
+        "PR 合并率 82.0%，合并项得分 24.6/30"
+      ]
     },
     {
       "key": "engineering",
       "name": "工程化效能",
-      "score": 90.5,
-      "weight": 0.15
+      "score": 95.2,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "CI 流水线",
+        "Dockerfile 容器化",
+        "Git Hooks / pre-commit 校验",
+        "依赖自动升级机器人（Dependabot/Renovate）",
+        "自动化发布流水线",
+        "安全扫描（CodeQL 等）",
+        "CHANGELOG 版本记录",
+        "CONTRIBUTING 协作规范",
+        "平均自动化深度 52.0%（工具链加权覆盖率）"
+      ]
     },
     {
       "key": "collaboration",
       "name": "沟通协作",
-      "score": 94,
-      "weight": 0.15
+      "score": 99.8,
+      "weight": 0.15,
+      "available": true,
+      "evidence": [
+        "PR 平均描述 260.0 字符（详实）",
+        "Review 评论 48 条，得分 30.0/30",
+        "Issue 讨论参与 21 次，得分 20.0/20",
+        "协作过的贡献者 6 人，得分 12.0/20",
+        "规范提交（Conventional Commits）占比 78.0%，得分 7.8/10"
+      ]
     },
     {
       "key": "business",
       "name": "业务洞察",
-      "score": 85.6,
-      "weight": 0.1
+      "score": 96,
+      "weight": 0.1,
+      "available": true,
+      "evidence": [
+        "平均 README 质量 65.0/100，得分 26.0/40",
+        "README 包含使用场景 / 功能说明",
+        "提供示例代码 / examples 目录",
+        "提供安装指引（降低上手门槛）",
+        "存在真实用户反馈（外部 Issue）",
+        "存在他人 Fork 后继续贡献"
+      ]
     }
   ],
   "redFlags": [
@@ -97,10 +147,60 @@
     {
       "id": 10,
       "name": "贡献图过于均匀",
-      "detected": true,
-      "detail": "每日提交量方差 0.30（阈值 <0.5）"
+      "detected": false,
+      "detail": ""
     }
   ],
-  "overallScore": 77.43314971822414,
-  "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。"
+  "overallScore": 83.3795063128187,
+  "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。",
+  "coverage": {
+    "availableDimensions": 6,
+    "totalDimensions": 6,
+    "notes": [
+      "已扫描 3/3 个原创仓库的文件结构与 README",
+      "已采集活动样本：PR 22 条、Issue 14 条、代表性提交 3 条",
+      "未采集数据不会被记为 0 分，也不会稀释其他维度的表现。"
+    ]
+  },
+  "insights": {
+    "evidenceHash": "4362c532cc458249d943d99fb8e5ea1eaca2ec2b8843e6a400570350042a8017",
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "generatedAt": "2026-09-13T03:43:31.526Z",
+    "summary": "综合得分 83.38，表现尤为突出的是协作、工程化和业务洞察，而在技术硬实力和架构模块化方面仍有提升空间。",
+    "strengths": [
+      {
+        "title": "协作能力出色",
+        "detail": "PR 平均描述 260 字符，Review 评论 48 条，Issue 参与 21 次，贡献者 6 人，规范提交占比 78%",
+        "evidence": "collaboration 维度证据：PR 平均描述 260.0 字符，Review 评论 48 条，Issue 讨论参与 21 次，协作过的贡献者 6 人，规范提交（Conventional Commits）占比 78.0%"
+      },
+      {
+        "title": "工程化与自动化深度高",
+        "detail": "CI 流水线、Dockerfile、Git Hooks、依赖自动升级、自动化发布、安全扫描、CHANGELOG、CONTRIBUTING，平均自动化深度 52.0%",
+        "evidence": "engineering 维度证据：CI 流水线、Dockerfile 容器化、Git Hooks / pre-commit 校验、依赖自动升级机器人、自动化发布流水线、安全扫描、CHANGELOG 版本记录、CONTRIBUTING 协作规范，平均自动化深度 52.0%"
+      },
+      {
+        "title": "业务洞察与文档质量佳",
+        "detail": "平均 README 质量 65.0/100，包含使用场景、示例代码、安装指引、真实用户反馈及他人 Fork 贡献",
+        "evidence": "business 维度证据：平均 README 质量 65.0/100，得分 26.0/40；README 包含使用场景 / 功能说明；提供示例代码 / examples 目录；提供安装指引；存在真实用户反馈（外部 Issue）；存在他人 Fork 后继续贡献"
+      }
+    ],
+    "improvements": [
+      {
+        "title": "技术硬实力相对薄弱",
+        "detail": "掌握 5 种语言但语言广度得分仅 25.5/40，项目质量得分较低（hexa-core 15.5，edge-router 14.1，dotfiles 7.0）",
+        "evidence": "technical 维度证据：掌握 5 种语言（TypeScript/Rust/Go/Lua/Shell），平均权重 1.0，语言广度得分 25.5/40；仓库 hexa-core：420 Star、复杂度 82.0/100、源码 168 文件，项目质量得分 15.5；仓库 edge-router：96 Star、复杂"
+      },
+      {
+        "title": "架构模块化得分偏低",
+        "detail": "平均模块化得分 54.0/100，最佳仓库仅 74/100，表明分层与测试分离有提升空间",
+        "evidence": "architecture 维度证据：平均模块化得分 54.0/100（最佳仓库 74/100，依据目录分层与测试分离）"
+      },
+      {
+        "title": "Issue 响应时间可优化",
+        "detail": "平均 Issue 响应 7.4 小时，虽已良好，但相较顶尖水平仍有缩小空间",
+        "evidence": "debugging 维度证据：平均 Issue 响应 7.4 小时"
+      }
+    ],
+    "advisory": "以上解读由大模型基于本报告的确定性数据生成，仅用于可读性增强，不参与也不改变任何评分与红牌判定。"
+  }
 }

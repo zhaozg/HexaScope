@@ -5,7 +5,8 @@
 
   组件：
     - home      首页：品牌 + 用户名查询表单
-    - dashboard 用户仪表板：综合得分、雷达图、六维卡片、红牌列表、免责声明
+    - dashboard 用户仪表板：综合得分、雷达图、数据覆盖度、六维卡片（含证据链）、
+      红牌列表、AI 智能解读、免责声明
 
   数据流（ADR-001）：开发环境走 /api/report/:username（本地 mock / raw 代理）；
   生产环境直连 raw.githubusercontent.com 读取 results/ 下的评估报告，
@@ -130,21 +131,40 @@
       <div class="radar" id="radar"></div>
     </section>
 
-    <!-- 六维得分卡片 -->
+    <!-- 数据覆盖度：明确标注哪些维度有数据支撑 -->
+    <section class="panel coverage-panel" :if="coverageNotes().length">
+      <h2>数据覆盖度
+        <span class="coverage-count">{ availableDimensionCount() }/{ report.dimensions.length } 维度有数据</span>
+      </h2>
+      <ul class="coverage-list">
+        <li :each="note in coverageNotes()">{ note }</li>
+      </ul>
+      <p class="coverage-hint">未采集到的数据不会被记为 0 分，也不会拉低其余维度的表现。</p>
+    </section>
+
+    <!-- 六维得分卡片（含证据链） -->
     <section class="panel">
       <h2>六维得分</h2>
       <ul class="score-list">
-        <li :each="dim in report.dimensions" class="score-item">
+        <li :each="dim in report.dimensions" class="score-item [ is-unavailable: !isAvailable(dim) ]">
           <div class="score-row">
             <span class="score-name">{ dim.name }</span>
-            <span class="score-value { scoreClass(dim.score) }">
+            <span :if="isAvailable(dim)" class="score-value { scoreClass(dim.score) }">
               { round(dim.score) }
             </span>
+            <span :else class="score-value is-na">数据不足</span>
           </div>
           <div class="score-track">
-            <div class="score-fill" style="width:{ round(dim.score) }%"></div>
+            <div :if="isAvailable(dim)" class="score-fill" style="width:{ round(dim.score) }%"></div>
           </div>
-          <span class="score-weight">权重 { round(dim.weight * 100) }%</span>
+          <span class="score-weight" :if="isAvailable(dim)">权重 { round(dim.weight * 100) }%</span>
+          <span class="score-weight" :else>未计入综合得分</span>
+          <details class="evidence" :if="dim.evidence?.length">
+            <summary>评分依据（{ dim.evidence.length } 条）</summary>
+            <ul>
+              <li :each="item in dim.evidence">{ item }</li>
+            </ul>
+          </details>
         </li>
       </ul>
     </section>
@@ -165,6 +185,48 @@
           </div>
         </li>
       </ul>
+    </section>
+
+    <!-- AI 智能解读（可选；不参与打分，仅增强可读性） -->
+    <section class="panel insights-panel" :if="report.insights">
+      <h2>AI 智能解读
+        <span class="insights-model">{ report.insights.model }</span>
+      </h2>
+      <p class="insights-summary">{ report.insights.summary }</p>
+
+      <div class="insights-grid">
+        <div class="insights-col" :if="report.insights.strengths?.length">
+          <h3>优势</h3>
+          <ul>
+            <li :each="item in report.insights.strengths">
+              <strong>{ item.title }</strong>
+              <p>{ item.detail }</p>
+              <span class="insight-evidence" :if="item.evidence">依据：{ item.evidence }</span>
+            </li>
+          </ul>
+        </div>
+        <div class="insights-col" :if="report.insights.improvements?.length">
+          <h3>可提升项</h3>
+          <ul>
+            <li :each="item in report.insights.improvements">
+              <strong>{ item.title }</strong>
+              <p>{ item.detail }</p>
+              <span class="insight-evidence" :if="item.evidence">依据：{ item.evidence }</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <details class="insights-notes" :if="report.insights.redFlagNotes?.length">
+        <summary>红牌成因说明</summary>
+        <ul>
+          <li :each="note in report.insights.redFlagNotes">
+            <span class="flag-badge">#{ note.id }</span> { note.note }
+          </li>
+        </ul>
+      </details>
+
+      <p class="insights-advisory">{ report.insights.advisory }</p>
     </section>
 
     <!-- 免责声明 -->
@@ -216,6 +278,21 @@
     // 计算触发红牌数量
     detectedCount() {
       return this.report?.redFlags?.filter((f) => f.detected).length ?? 0
+    }
+
+    // 维度是否有足够数据支撑（false 表示"数据不足"，不等于 0 分）
+    isAvailable(dim) {
+      return dim.available !== false
+    }
+
+    // 有数据支撑的维度数量
+    availableDimensionCount() {
+      return this.report?.dimensions?.filter((d) => this.isAvailable(d)).length ?? 0
+    }
+
+    // 数据覆盖度说明（旧版报告无 coverage 字段时给出兜底提示）
+    coverageNotes() {
+      return this.report?.coverage?.notes ?? []
     }
   </script>
 </article>

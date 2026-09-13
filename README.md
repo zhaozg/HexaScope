@@ -22,9 +22,34 @@
 - **🧠 Copilot 自然语言交互**：在 IDE 中通过 `@HexaScope 查看我的报告` 直接查询自己的雷达图（仅支持自我评估）
 - **📊 六维能力模型**：技术硬实力 · 架构设计 · 问题排查 · 工程化效能 · 沟通协作 · 业务洞察
 - **🛡️ 反作弊检测**：内置 10 项红牌指标（自合并比例、Fork 囤积、AI 代码特征、Bot 行为等），过滤虚假繁荣
+- **🔍 评分可追溯**：每个维度在报告中都给出 `evidence` 证据链与数据覆盖度说明；未采集到的数据**不计 0 分**
+- **🧠 AI 智能解读（可选）**：由免费 LLM 把确定性结果转写为优势／短板／提升建议；**不参与打分**，未配置密钥则自动跳过
 - **💰 完全免费**：基于 GitHub Actions 免费额度运行，无需付费
 - **📦 开源可自托管**：MIT 协议，企业可私有化部署
 - **🔒 仅自我评估**：只评估安装 App 的账户本人，不评估/公开他人画像；自我评估存在主观偏差（戏剧化），结果仅供参考
+
+## 🧠 关于 AI 智能解读（可选）
+
+报告中的「AI 智能解读」段落由**免费 LLM** 生成，用于把结构化结果转写为可读的洞察与建议。
+
+- **不参与打分**：六维得分与红牌完全由确定性算法计算，LLM 只读不写；重跑同分同文（证据指纹缓存 + `temperature=0`）
+- **默认免费**：默认走 OpenRouter 免费模型池，并支持多模型回退；未配置密钥、限流或超时时**自动跳过**，报告照常生成
+- **凭据安全**：密钥仅从环境变量读取，绝不硬编码、绝不打印
+
+启用方式（任选其一，二选一即可）：
+
+```bash
+# 本地运行
+export OPENROUTER_API_KEY="sk-or-..."   # 或 DEEPSEEK_API_KEY
+bun scripts/cli.ts evaluate <你的用户名> --insights
+
+# GitHub Actions：在仓库 Settings → Secrets and variables → Actions 添加
+#   Secret: HEXASCOPE_LLM_API_KEY = sk-or-...
+#   （可选）Variable: HEXASCOPE_LLM_MODEL / HEXASCOPE_LLM_BASE_URL
+# 未配置时工作流自动跳过解读，不影响评分与红牌
+```
+
+> 任意 OpenAI Chat Completions 兼容端点均可通过 `HEXASCOPE_LLM_BASE_URL` + `HEXASCOPE_LLM_MODEL` 接入（如自建网关或 DeepSeek）。
 
 ## 🚀 快速开始
 

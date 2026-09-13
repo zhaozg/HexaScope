@@ -96,10 +96,14 @@ jobs:
           for user in ${{ steps.targets.outputs.users }}; do
             echo "== 评估 $user =="
             mkdir -p "results/$user"
-            bun scripts/cli.ts evaluate "$user" > "results/$user/report.json"
+            bun scripts/cli.ts evaluate "$user" --insights > "results/$user/report.json"
           done
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # 解读层（可选）：未配置密钥时自动跳过，不影响评分结果
+          HEXASCOPE_LLM_API_KEY: ${{ secrets.HEXASCOPE_LLM_API_KEY }}
+          HEXASCOPE_LLM_MODEL: ${{ vars.HEXASCOPE_LLM_MODEL }}
+          HEXASCOPE_LLM_BASE_URL: ${{ vars.HEXASCOPE_LLM_BASE_URL }}
 
       - name: 提交结果到仓库
         run: |
