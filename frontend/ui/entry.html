@@ -4,10 +4,11 @@
   HexaScope 前端组件库（Nuekit 2.0 SPA）
 
   组件：
-    - home      首页：品牌 + 用户名查询表单
+    - home      首页：品牌 + 安装/演示主行动区（CTA）+ 常驻三步流程 + 查询表单
+      + 六维模型速览 + 演示截图
+      + 六维模型速览 + 演示截图
     - dashboard 用户仪表板：综合得分、雷达图、数据覆盖度、六维卡片（含证据链）、
-      红牌列表、AI 智能解读、免责声明
-
+      红牌列表、AI 智能解读、免责声明；空态直接给出安装与发起评估入口
   数据流（ADR-001）：开发环境走 /api/report/:username（本地 mock / raw 代理）；
   生产环境直连 raw.githubusercontent.com 读取 results/ 下的评估报告，
   demo 用户回退到站点内置演示报告（./demo-report.json）。
@@ -21,6 +22,20 @@
   const RAW_BASE = 'https://raw.githubusercontent.com/zhaozg/HexaScope/main/results'
   // 开发环境（nue dev）本地标记
   const DEV = ['localhost', '127.0.0.1'].includes(location.hostname)
+
+  // GitHub App 安装页与仓库入口：首页 CTA、三步流程、错误页共用同一常量，
+  // 避免安装入口在多处漂移（与 README 徽章、DESIGN §5 使用流程保持一致）
+  const APP_INSTALL_URL = 'https://github.com/apps/hexascope'
+  const REPO_URL = 'https://github.com/zhaozg/HexaScope'
+
+  // 发起评估的 Issue 预填链接：正文为 analyze.yml 解析的「/evaluate <用户名>」指令
+  // （注：脚本注释内不得出现反引号，否则 Nuekit 编译器会错配模板字符串界符）
+  // 注意：函数名不可与组件方法同名，否则 Nuekit 2.0.0-beta.2 会把脚本编译成损坏的字符串
+  function buildEvaluateIssueUrl(username) {
+    const body = username ? `/evaluate ${username}` : '/evaluate '
+    const title = username ? `评估 ${username} 的六维能力` : '发起六维能力评估'
+    return `${REPO_URL}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`
+  }
 
   // 加载评估报告：开发环境先试本地代理（含 demo 演示数据），失败回退 raw；生产直连 raw
   // 加载评估报告：
@@ -78,16 +93,59 @@
     <p class="hero-sub">开源 · 免费 · 深度集成 GitHub · 自我评估仅供参考</p>
   </header>
 
-  <form class="search-form" :onsubmit="go" autocomplete="off">
-    <label class="sr-only" for="github-user">GitHub 用户名</label>
-    <input id="github-user" name="user" placeholder="输入 GitHub 用户名" required>
-    <button type="submit">生成雷达图</button>
-  </form>
+  <!-- 主行动区：安装 App 是漏斗第一步，必须首屏可见、可点、有明确主次 -->
+  <section class="cta-panel" aria-labelledby="cta-title">
+    <h2 id="cta-title">生成你自己的六维能力报告</h2>
+    <p class="cta-actions">
+      <a class="btn btn-install btn-lg" href="https://github.com/apps/hexascope" target="_blank" rel="noopener">
+        安装 HexaScope App<span class="ext" aria-hidden="true">↗</span>
+        <span class="sr-only">（在新标签页打开）</span>
+      </a>
+      <a class="btn btn-demo" href="./?user=demo">查看演示报告</a>
+    </p>
+    <p class="cta-note">
+      只读权限 · 免费开源 · 约 1 分钟；报告仅本人可查（隐私边界，不评估他人）
+    </p>
+  </section>
 
-  <p class="home-demo">
-    <a class="btn btn-demo" href="./?user=demo">查看演示报告</a>
-    <span class="home-demo-hint">无需安装，先看一份完整报告长什么样</span>
-  </p>
+  <!-- 三步流程：常驻可见（原先折叠在 <details> 里，安装入口因此无处可寻） -->
+  <section class="steps-panel" aria-labelledby="steps-title">
+    <h2 id="steps-title">三步生成你的报告</h2>
+    <ol class="steps" role="list">
+      <li>
+        <strong>安装 App</strong>
+        <p>
+          点上方按钮授权只读访问公开数据，也可直接访问
+          <a href="https://github.com/apps/hexascope" target="_blank" rel="noopener">github.com/apps/hexascope ↗</a>。
+        </p>
+      </li>
+      <li>
+        <strong>发起评估</strong>
+        <p>
+          在本仓库新建 Issue 并评论 <code>/evaluate 你的用户名</code>：
+          <a href="{ evaluateIssueUrl() }" target="_blank" rel="noopener">打开预填好的 Issue<span class="ext" aria-hidden="true">↗</span><span class="sr-only">（在新标签页打开）</span></a>。
+        </p>
+      </li>
+      <li>
+        <strong>查看报告</strong>
+        <p>评估约 1–2 分钟完成，回到本页输入用户名即可查看（或在下方直接查询）。</p>
+      </li>
+    </ol>
+    <p class="steps-note">
+      仅评估安装 App 的账户本人；自我评估存在主观偏差，报告仅供参考。
+    </p>
+  </section>
+
+  <!-- 查询入口：给已生成过报告的用户，避免被误解为“输入用户名就能生成” -->
+  <section class="query-panel" aria-labelledby="query-title">
+    <h2 id="query-title">已有报告？直接查询</h2>
+    <form class="search-form" :onsubmit="go" autocomplete="off">
+      <label class="sr-only" for="github-user">GitHub 用户名</label>
+      <input id="github-user" name="user" placeholder="输入 GitHub 用户名" required>
+      <button type="submit">查看报告</button>
+    </form>
+    <p class="query-hint">尚未生成过报告？请先完成上面三步中的前两步，再回来查询。</p>
+  </section>
 
   <!-- 六维模型速览：新用户在首屏即可知道“六个维度分别看什么” -->
   <section class="panel dimensions-panel" aria-labelledby="dimensions-title">
@@ -114,28 +172,6 @@
     <figcaption>演示报告预览（对应 ?user=demo）</figcaption>
   </figure>
 
-  <!-- 三步了解工作原理：默认折叠，不干扰已了解的用户 -->
-  <details class="howto">
-    <summary>三步了解工作原理</summary>
-    <ol class="howto-steps">
-      <li>
-        <strong>① 授权</strong>
-        <p>安装 HexaScope GitHub App（或在 Actions 页手动触发评估），仅申请只读权限。</p>
-      </li>
-      <li>
-        <strong>② 评估</strong>
-        <p>Actions 自动采集你的公开仓库结构与活动数据，用确定性算法评分并检测红牌。</p>
-      </li>
-      <li>
-        <strong>③ 查看</strong>
-        <p>在 GitHub Pages 打开雷达图，或在 IDE 里向 Copilot 提问「查看我的报告」。</p>
-      </li>
-    </ol>
-    <p class="howto-note">
-      仅评估安装 App 的账户本人（隐私边界）；自我评估存在主观偏差，报告仅供参考。
-    </p>
-  </details>
-
   <script>
     // 六维能力模型速览（首页卡片）。
     // 说明文字即各维度的实际评估依据，与 scripts/scoreCalculator.ts 的计分项保持一致。
@@ -148,6 +184,11 @@
         { icon: '🤝', name: '沟通协作', basis: 'PR 描述质量、Review 与 Issue 参与、协作人数' },
         { icon: '💡', name: '业务洞察', basis: 'README 质量、使用场景、安装指引、用户反馈' },
       ]
+    }
+
+    // 三步流程第 2 步的 Issue 预填链接（未确定用户名时只预填「/evaluate」前缀）
+    evaluateIssueUrl() {
+      return buildEvaluateIssueUrl()
     }
 
     go(e) {
@@ -164,12 +205,36 @@
     <p>正在加载 <strong>{ user }</strong> 的评估报告…</p>
   </div>
 
-  <!-- 错误 -->
+  <!-- 错误/空态：不再以“返回首页”收尾死胡同，直接给出安装与发起评估的可点路径 -->
   <div :if="error" class="state-panel error">
-    <h2>未找到评估报告</h2>
+    <h2>还没有 { user } 的评估报告</h2>
     <p>{ error }</p>
-    <p>仅支持评估已安装 HexaScope App 且已生成报告的账户（隐私边界）。</p>
-    <a class="btn" href="./">返回首页</a>
+    <p class="state-lead">如果这是你自己的账号，完成下面两步即可（仅支持评估本人）：</p>
+    <ol class="state-steps" role="list">
+      <li>
+        <strong>安装 HexaScope App</strong>
+        <p>授权只读访问公开数据。</p>
+      </li>
+      <li>
+        <strong>发起评估</strong>
+        <p>
+          评论 <code>/evaluate { user }</code> 触发生成，约 1–2 分钟后刷新本页。
+        </p>
+      </li>
+    </ol>
+    <p class="state-actions">
+      <a class="btn btn-install btn-lg" href="https://github.com/apps/hexascope" target="_blank" rel="noopener">
+        安装 HexaScope App<span class="ext" aria-hidden="true">↗</span>
+        <span class="sr-only">（在新标签页打开）</span>
+      </a>
+      <a class="btn btn-demo" href="{ evaluateIssueUrl() }" target="_blank" rel="noopener">
+        打开预填好的评估 Issue<span class="ext" aria-hidden="true">↗</span>
+        <span class="sr-only">（在新标签页打开）</span>
+      </a>
+    </p>
+    <p class="state-links">
+      <a href="./?user=demo">先看演示报告</a> · <a href="./">返回首页</a>
+    </p>
   </div>
 
   <!-- 报告主体 -->
@@ -347,6 +412,11 @@
     // 计算触发红牌数量
     detectedCount() {
       return this.report?.redFlags?.filter((f) => f.detected).length ?? 0
+    }
+
+    // 空态专用：用当前查询的用户名预填「/evaluate <用户名>」的 Issue（与首页三步流程同一助手）
+    evaluateIssueUrl() {
+      return buildEvaluateIssueUrl(this.user)
     }
 
     // 维度是否有足够数据支撑（false 表示"数据不足"，不等于 0 分）
