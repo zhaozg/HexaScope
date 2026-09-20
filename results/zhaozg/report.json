@@ -1,6 +1,6 @@
 {
   "username": "zhaozg",
-  "generatedAt": "2026-09-13T03:56:02.890Z",
+  "generatedAt": "2026-09-20T04:05:44.473Z",
   "dimensions": [
     {
       "key": "technical",
@@ -9,7 +9,7 @@
       "weight": 0.25,
       "available": true,
       "evidence": [
-        "掌握 9 种语言（TypeScript/CMake/C/Zig/Lua/Vim script），平均权重 1.0，语言广度得分 40.0/40",
+        "掌握 9 种语言（CMake/TypeScript/C/Zig/Lua/Vim script），平均权重 1.0，语言广度得分 40.0/40",
         "仓库 lua-openssl：316 Star、复杂度 75.0/100、源码 119 文件，项目质量得分 15.0",
         "仓库 luajit-cmake：88 Star、复杂度 33.0/100、源码 3 文件，项目质量得分 12.2",
         "仓库 lui：38 Star、复杂度 52.0/100、源码 40 文件，项目质量得分 13.2"
@@ -35,7 +35,7 @@
       "available": true,
       "evidence": [
         "平均 Issue 响应 26.8 小时（偏慢）",
-        "Bug 修复提交 29 次，修复项得分 30.0/30",
+        "Bug 修复提交 30 次，修复项得分 30.0/30",
         "PR 合并率 98.0%，合并项得分 29.4/30"
       ]
     },
@@ -54,7 +54,7 @@
     {
       "key": "collaboration",
       "name": "沟通协作",
-      "score": 86.82758620689656,
+      "score": 86.88888888888889,
       "weight": 0.15,
       "available": true,
       "evidence": [
@@ -62,7 +62,7 @@
         "Review 评论 566 条，得分 30.0/30",
         "Issue 讨论参与 410 次，得分 20.0/20",
         "协作过的贡献者 1 人，得分 2.0/20",
-        "规范提交（Conventional Commits）占比 48.3%，得分 4.8/10"
+        "规范提交（Conventional Commits）占比 48.9%，得分 4.9/10"
       ]
     },
     {
@@ -143,7 +143,7 @@
       "detail": ""
     }
   ],
-  "overallScore": 68.79151236178758,
+  "overallScore": 68.80070776408644,
   "disclaimer": "本报告基于 GitHub 公开数据自动生成，仅供参考。自我评估存在主观偏差（戏剧化），不构成招聘、评级或任何决策依据。",
   "coverage": {
     "availableDimensions": 6,
