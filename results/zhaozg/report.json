@@ -1,6 +1,6 @@
 {
   "username": "zhaozg",
-  "generatedAt": "2026-10-04T04:59:04.988Z",
+  "generatedAt": "2026-10-11T04:49:44.548Z",
   "dimensions": [
     {
       "key": "technical",
@@ -9,7 +9,7 @@
       "weight": 0.25,
       "available": true,
       "evidence": [
-        "掌握 9 种语言（CMake/TypeScript/C/Zig/Lua/Vim script），平均权重 1.0，语言广度得分 40.0/40",
+        "掌握 9 种语言（Zig/TypeScript/CMake/C/Lua/Vim script），平均权重 1.0，语言广度得分 40.0/40",
         "仓库 lua-openssl：316 Star、复杂度 75.0/100、源码 119 文件，项目质量得分 15.0",
         "仓库 luajit-cmake：90 Star、复杂度 33.0/100、源码 3 文件，项目质量得分 12.2",
         "仓库 lui：38 Star、复杂度 52.0/100、源码 40 文件，项目质量得分 13.2"
@@ -60,7 +60,7 @@
       "evidence": [
         "PR 平均描述 4088.2 字符（详实）",
         "Review 评论 570 条，得分 30.0/30",
-        "Issue 讨论参与 410 次，得分 20.0/20",
+        "Issue 讨论参与 411 次，得分 20.0/20",
         "协作过的贡献者 1 人，得分 2.0/20",
         "规范提交（Conventional Commits）占比 49.4%，得分 4.9/10"
       ]
